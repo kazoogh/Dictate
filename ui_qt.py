@@ -142,15 +142,12 @@ def _pil_icon(pil_image, size: int | None = None) -> QIcon:
     return QIcon(QPixmap.fromImage(qimg))
 
 
-def _card(padding: int = 0) -> QFrame:
+def _card() -> QFrame:
     frame = QFrame()
     frame.setObjectName("card")
     frame.setStyleSheet(
         f"#card {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 12px; }}"
     )
-    if padding:
-        lay = QVBoxLayout(frame)
-        lay.setContentsMargins(padding, padding, padding, padding)
     return frame
 
 
@@ -513,8 +510,9 @@ class DashboardWindow(QMainWindow):
         self._record_banner.hide()
         left.addWidget(self._record_banner)
 
-        list_card = _card(20)
+        list_card = _card()
         lc = QVBoxLayout(list_card)
+        lc.setContentsMargins(20, 20, 20, 20)
         lc.setSpacing(12)
         head = QHBoxLayout()
         head.addWidget(_icon_label("file-text", 18, MUTED))
@@ -533,12 +531,12 @@ class DashboardWindow(QMainWindow):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        hist_body = QWidget()
-        self._history_area = QVBoxLayout(hist_body)
+        self._history_body = QWidget()
+        self._history_area = QVBoxLayout(self._history_body)
         self._history_area.setSpacing(10)
         self._history_area.setContentsMargins(0, 0, 4, 0)
-        hist_body.setLayout(self._history_area)
-        scroll.setWidget(hist_body)
+        self._history_area.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scroll.setWidget(self._history_body)
         lc.addWidget(scroll, 1)
         left.addWidget(list_card, 1)
         layout.addLayout(left, 2)
@@ -552,8 +550,9 @@ class DashboardWindow(QMainWindow):
         for i, (key, title_text) in enumerate(
             [("time", "Total Time"), ("words", "Words"), ("sessions", "Sessions"), ("wpm", "Avg WPM")]
         ):
-            card = _card(14)
+            card = _card()
             cv = QVBoxLayout(card)
+            cv.setContentsMargins(14, 14, 14, 14)
             cv.setSpacing(6)
             row = QHBoxLayout()
             row.addWidget(_icon_label(stat_icons[key], 14, ACCENT))
@@ -569,8 +568,9 @@ class DashboardWindow(QMainWindow):
             grid.addWidget(card, i // 2, i % 2)
         right.addLayout(grid)
 
-        self._local_card = _card(18)
+        self._local_card = _card()
         lv = QVBoxLayout(self._local_card)
+        lv.setContentsMargins(18, 18, 18, 18)
         lv.setSpacing(10)
         local_head = QHBoxLayout()
         shield_box = QFrame()
@@ -609,8 +609,9 @@ class DashboardWindow(QMainWindow):
         lv.addWidget(offline)
         right.addWidget(self._local_card)
 
-        self._status_card = _card(18)
+        self._status_card = _card()
         sv = QVBoxLayout(self._status_card)
+        sv.setContentsMargins(18, 18, 18, 18)
         sv.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._listen_icon = QLabel()
         self._listen_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -750,8 +751,9 @@ class DashboardWindow(QMainWindow):
     def refresh(self):
         while self._history_area.count():
             item = self._history_area.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
         entries = self.app.history.get_entries()
         self._count_badge.setText(f"{len(entries)} item" if len(entries) == 1 else f"{len(entries)} items")
         if not entries:
@@ -761,6 +763,7 @@ class DashboardWindow(QMainWindow):
         else:
             for entry in entries:
                 self._history_area.addWidget(self._history_row(entry))
+        self._history_body.adjustSize()
         stats = self.app.history.get_stats()
         self._stat_labels["time"].setText(format_total_time(stats["total_seconds"]))
         self._stat_labels["words"].setText(f"{stats['total_words']:,}")
@@ -825,6 +828,8 @@ class DashboardWindow(QMainWindow):
 
     def run(self):
         self.show()
+        self.refresh()
+        self.app._notify("Loading Whisper model…", state="loading")
 
     def destroy(self):
         self.close()

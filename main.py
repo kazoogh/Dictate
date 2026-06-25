@@ -419,7 +419,10 @@ class DictationApp:
 
         self.native = NativeShell(get_app_dir())
         self.hotkey_backend = "none"
-        self.history = HistoryStore(max_entries=config.get("max_history_entries", 500))
+        self.history = HistoryStore(
+            get_app_dir() / "history.json",
+            max_entries=config.get("max_history_entries", 500),
+        )
         self.vocabulary = VocabularyStore(
             get_app_dir(),
             fuzzy_threshold=int(config.get("vocabulary_fuzzy_threshold", 82)),
@@ -445,7 +448,6 @@ class DictationApp:
         )
         self.dashboard = DashboardWindow(self)
         self.status_overlay = StatusOverlay()
-        self.status_overlay.update_status("Loading Whisper model…", state="loading")
 
         self.dashboard.set_app_state("loading")
         threading.Thread(target=self._load_model, daemon=True).start()
@@ -475,15 +477,25 @@ class DictationApp:
         clear = None if persistent else auto_hide_ms
         self.dashboard.set_status(message, auto_clear_ms=clear, state=state)
 
+        overlay_state = state
+        if state == "idle" and auto_hide_ms and message.lower() in ("ready", "pasted.", "copied, paste manually."):
+            overlay_state = "success"
+        if message.startswith("Learned vocabulary"):
+            overlay_state = "success"
+
         if persistent:
             self.status_overlay.update_status(message, auto_hide_ms=None, state=state)
-        elif state in ("success", "error") or auto_hide_ms:
+        elif auto_hide_ms or state in ("success", "error"):
             hide_ms = auto_hide_ms or (4000 if state == "error" else 2500)
-            self.status_overlay.update_status(message, auto_hide_ms=hide_ms, state=state)
+            self.status_overlay.update_status(
+                message, auto_hide_ms=hide_ms, state=overlay_state
+            )
         elif state == "idle" and not self.dashboard.is_hidden:
             self.status_overlay.hide()
         elif self.dashboard.is_hidden:
-            self.status_overlay.update_status(message, auto_hide_ms=auto_hide_ms or 3000, state=state)
+            self.status_overlay.update_status(
+                message, auto_hide_ms=auto_hide_ms or 3000, state=overlay_state
+            )
 
     def _load_model(self):
         try:
@@ -494,7 +506,7 @@ class DictationApp:
             with self._lock:
                 self.state = "idle"
             self._ui(lambda: self.dashboard.set_app_state("idle"))
-            self._notify("Ready", state="idle", auto_hide_ms=2000)
+            self._notify("Ready", state="success", auto_hide_ms=2500)
             if cleanup:
                 self.transcript_cleaner.wait_for_punctuation(timeout=120)
                 if not self.transcript_cleaner.punctuation_available():
