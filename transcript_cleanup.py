@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import threading
 
+from list_formatting import format_dictated_lists
 from punctuation_assets import ensure_punctuation_assets
 from spoken_punctuation import iter_spoken_commands, merge_punctuated_pieces, repair_whisper_punctuation_mishears
 
@@ -380,7 +381,11 @@ class TranscriptCleaner:
                 index += 1
 
         result = merge_punctuated_pieces(merged)
-        return _fix_punctuation_artifacts(result)
+        return self._finalize(result)
+
+    def _finalize(self, text: str) -> str:
+        text = _fix_punctuation_artifacts(text)
+        return format_dictated_lists(text)
 
     def _clean_plain(
         self,
@@ -408,4 +413,4 @@ class TranscriptCleaner:
         else:
             text = _apply_sentence_case(text)
 
-        return _fix_punctuation_artifacts(text)
+        return self._finalize(text)
