@@ -25,7 +25,7 @@ Each field needs:
 
 PROCEDURE TYPE NAMES (must match filename mapping in clinical/paths.py)
 -----------------------------------------------------------------------
-  Extraction, Filling, Crown, Denture, New Patient Exam, Other
+  Extraction, Filling, Crown, Denture, Limited Exam, Comp Exam, New Patient Exam, Other
 
 If you have Dentrix templates in Word/PDF, type the questions into JSON
 using crown.json as a guide, or send a structured spreadsheet (one row

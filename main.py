@@ -24,6 +24,7 @@ from scipy.io import wavfile
 
 from clinical.service import ClinicalManager
 from native_bridge import HotkeyCallback, NativeShell
+from spoken_punctuation import apply_spoken_punctuation
 from transcript_cleanup import TranscriptCleaner
 from ui_qt import DashboardWindow, StatusOverlay, format_hotkey_display
 from focus_text import get_focused_text
@@ -723,6 +724,7 @@ class DictationApp:
             if not text.strip():
                 self._notify("No speech detected.", state="idle", auto_hide_ms=3000)
                 return
+            text = apply_spoken_punctuation(text)
             if self.config.get("dictation_cleanup", True):
                 self._notify("Cleaning up…", state="working")
                 text = self.transcript_cleaner.clean(text)

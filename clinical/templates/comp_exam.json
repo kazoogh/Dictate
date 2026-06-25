@@ -1,0 +1,205 @@
+{
+  "procedure_type": "Comp Exam",
+  "template_id": "comp_exam_ascend_v3",
+  "version": "3.0",
+  "source": "Dentrix Ascend — Comp Exam (Clinical Exams) clinical note",
+  "fields": [
+    {
+      "id": "chief_complaint",
+      "label": "Chief Concern (Chief Complaint)",
+      "type": "free_text",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "What brings the patient in today?"
+    },
+    {
+      "id": "last_dental_visit",
+      "label": "Last dental visit (LDV)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "When was the patient's last dental visit (LDV)?"
+    },
+    {
+      "id": "x_rays_images",
+      "label": "Took (X-Rays / Images)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "No X-Rays today",
+        "Panoramic",
+        "4 Bitewings",
+        "2D pictures with Iphone",
+        "PAs",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "If multiple image types were taken, combine them (e.g. '4 Bitewings and PAs')."
+    },
+    {
+      "id": "health_issues",
+      "label": "Health History (Health Issues)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Check all health issues that apply. Use NONE if none apply. Options: NONE, AIDS, Anemia, Arthritis, Artificial Joints, Asthma, Blood Disease, Cancer, Diabetes, Dizziness, Epilepsy, Excessive Bleeding, Fainting, Glaucoma, Growths, Hay Fever, Head Injuries, Heart Disease, Heart Murmur, Hepatitis, HIV Positive, Hypertension, Jaundice, Kidney Disease, Liver Disease, Mental Disorders, Nervous Disorders, Pacemaker, Pregnancy, Radiation Treatment, Respiratory Problems, Rheumatic Fever, Rheumatism, Sinus Problems, Stomach Problems, Stroke, Tuberculosis, Tumors, Ulcers, Venereal Disease, Codeine Allergy, Penicillin Allergy. List all that apply, comma-separated."
+    },
+    {
+      "id": "habits_bulimia_anorexia",
+      "label": "Habits — Bulimia/Anorexia",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": ["None", "Potential", "Manifested", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "habits_mouth_breathing",
+      "label": "Habits — Mouth Breathing",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": ["None", "Potential", "Manifested", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "habits_substance_abuse",
+      "label": "Habits — Substance Abuse",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": ["None", "Potential", "Manifested", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "habits_teeth_grind_clench",
+      "label": "Habits — Grinding/Clenching (Teeth Grind/Clench)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": ["None", "Potential", "Manifested", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "smoking",
+      "label": "Pt smokes (Smoking)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "Cigarettes",
+        "Vape",
+        "Smokeless tobacco",
+        "Marijuana",
+        "Nothing",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "If the pt smokes, what do they smoke? Use Nothing if non-smoker."
+    },
+    {
+      "id": "intraoral_exam",
+      "label": "Intraoral Soft Tissue (Intraoral Exam)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "What is the overall intraoral health of the pt?"
+    },
+    {
+      "id": "oral_hygiene_plaque",
+      "label": "Plaque (Oral Hygiene, Plaque)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": ["None", "Generalized", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "oral_hygiene_calculus",
+      "label": "Calculus (Oral Hygiene, Calculus)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": ["None", "Generalized", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "ste_extraoral_head_neck",
+      "label": "Head and Neck (STE Extraoral Head/Neck)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Soft tissue exam of the head and neck. Use 'Normal' if within normal limits."
+    },
+    {
+      "id": "rx_drug_name",
+      "label": "Prescribed (Rx drug name)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "Nothing",
+        "Augmentin 875 mg",
+        "Clindamycin 300 mg",
+        "Tylenol 325 mg",
+        "Motrin 800 mg",
+        "Flagly 500 mg",
+        "Chlorhexidine Gluconate Oral Rinse USP, 0.12%",
+        "Magic Mouthwash",
+        "Mycelex Troches 10mg",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Choose Nothing OR the drug name if any medication was prescribed."
+    },
+    {
+      "id": "referral",
+      "label": "Referral",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Was the pt referred for anything? Leave blank or 'None' if not referred."
+    },
+    {
+      "id": "next_visit",
+      "label": "NV (Next Visit)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Describe IN DETAIL what the patient's next visit is."
+    },
+    {
+      "id": "additional_notes",
+      "label": "Additional Notes",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "ANY additional information regarding the comprehensive exam visit."
+    },
+    {
+      "id": "employee_initials",
+      "label": "Assistant initials (Employee Initials)",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "doctor_completed",
+      "label": "Doctor who completed exam (Doctor's Initials)",
+      "type": "short_answer",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    }
+  ]
+}

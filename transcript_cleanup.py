@@ -66,6 +66,7 @@ _CONTINUATION_AFTER_PERIOD = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+
 _ACRONYMS = frozenset(
     {
         "AI",
@@ -88,6 +89,9 @@ _ACRONYMS = frozenset(
         "USB",
     }
 )
+
+
+_EXPLICIT_PUNCTUATION = re.compile(r"[,;:.!?\'\"\n@#/\\()\[\]{}]")
 
 
 class _OnnxPunctuation:
@@ -281,16 +285,19 @@ class TranscriptCleaner:
             text = remove_fillers(text)
 
         if add_punctuation:
-            model = self._get_punctuation_model()
-            plain = _strip_for_punctuation_model(text)
-            if model is not None and plain:
-                try:
-                    text = model.restore_punctuation(plain)
-                except Exception:
-                    text = _apply_sentence_case(plain)
-            elif plain:
-                text = plain
-            text = _apply_sentence_case(text)
+            if _EXPLICIT_PUNCTUATION.search(text):
+                text = _apply_sentence_case(text)
+            else:
+                model = self._get_punctuation_model()
+                plain = _strip_for_punctuation_model(text)
+                if model is not None and plain:
+                    try:
+                        text = model.restore_punctuation(plain)
+                    except Exception:
+                        text = _apply_sentence_case(plain)
+                elif plain:
+                    text = plain
+                text = _apply_sentence_case(text)
         else:
             text = _apply_sentence_case(text)
 

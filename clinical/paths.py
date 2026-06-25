@@ -12,6 +12,8 @@ PROCEDURE_TYPES = [
     "Filling",
     "Crown",
     "Denture",
+    "Limited Exam",
+    "Comp Exam",
     "New Patient Exam",
     "Other",
 ]
@@ -21,6 +23,8 @@ PROCEDURE_TEMPLATE_MAP = {
     "Filling": "filling.json",
     "Crown": "crown.json",
     "Denture": "denture.json",
+    "Limited Exam": "limited_exam.json",
+    "Comp Exam": "comp_exam.json",
     "New Patient Exam": "new_patient_exam.json",
     "Other": "other.json",
 }

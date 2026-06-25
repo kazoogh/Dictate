@@ -1,0 +1,116 @@
+{
+  "procedure_type": "Limited Exam",
+  "template_id": "limited_exam_ascend_v3",
+  "version": "3.0",
+  "source": "Dentrix Ascend — Limited Exam (Clinical Exams) clinical note",
+  "fields": [
+    {
+      "id": "chief_complaint",
+      "label": "Pt presents for (Chief Complaint)",
+      "type": "free_text",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "What brings the patient in today?"
+    },
+    {
+      "id": "x_rays_images",
+      "label": "Took (X-Rays / Images)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "No X-Rays today",
+        "Panoramic",
+        "4 Bitewings",
+        "2D pictures with Iphone",
+        "PAs",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "If multiple image types were taken, combine them (e.g. '4 Bitewings and PAs')."
+    },
+    {
+      "id": "diagnosis",
+      "label": "Diagnosis",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Clinical diagnosis discussed or determined at this limited exam."
+    },
+    {
+      "id": "tx_completed",
+      "label": "Treatment Completed (Tx Completed)",
+      "type": "free_text",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "What did we do for the pt today? Include DETAILS."
+    },
+    {
+      "id": "employee_initials",
+      "label": "Employee Initials",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "rx_drug_name",
+      "label": "Perscribed (Rx drug name)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "Nothing",
+        "Augmentin 875 mg",
+        "Clindamycin 300 mg",
+        "Tylenol 325 mg",
+        "Motrin 800 mg",
+        "Flagly 500 mg",
+        "Chlorhexidine Gluconate Oral Rinse USP, 0.12%",
+        "Magic Mouthwash",
+        "Mycelex Troches 10mg",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Choose Nothing OR the drug name if any medication was prescribed."
+    },
+    {
+      "id": "referral",
+      "label": "Referral",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Was the pt referred for anything? (e.g. Referred for RCT consult #14 OR Referred for F/F). Leave blank or 'None' if not referred."
+    },
+    {
+      "id": "next_visit",
+      "label": "NV (Next Visit)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Describe IN DETAIL what the patient's next visit is."
+    },
+    {
+      "id": "additional_notes",
+      "label": "Additional Notes",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "ANY additional information regarding patient's visit today OR Treatment Completed OR Future Visit(s)."
+    },
+    {
+      "id": "doctor_completed",
+      "label": "Doctor who completed exam (Doctor's Initials)",
+      "type": "short_answer",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    }
+  ]
+}
