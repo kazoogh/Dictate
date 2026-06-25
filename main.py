@@ -171,6 +171,24 @@ class HotkeyEmitter(QObject):
     pressed = Signal(int)
 
 
+class UiInvoker(QObject):
+    """Marshal callables onto the Qt main thread."""
+
+    invoke = Signal(object)
+
+    def __init__(self):
+        super().__init__()
+        self.invoke.connect(self._dispatch)
+
+    def _dispatch(self, fn):
+        try:
+            fn()
+        except Exception:
+            import traceback
+
+            traceback.print_exc()
+
+
 _hotkey_target: "DictationApp | None" = None
 
 
@@ -392,6 +410,7 @@ class DictationApp:
         self._recording_started_at: float | None = None
         self._hotkey_emitter = HotkeyEmitter()
         self._hotkey_emitter.pressed.connect(self._on_native_hotkey)
+        self._ui_invoker = UiInvoker()
 
         self.native = NativeShell(get_app_dir())
         self.history = HistoryStore(max_entries=config.get("max_history_entries", 500))
@@ -429,13 +448,13 @@ class DictationApp:
         self._schedule_clinical_cleanup()
 
     def _ui(self, fn):
-        QTimer.singleShot(0, fn)
+        self._ui_invoker.invoke.emit(fn)
 
     def _clinical_updated(self):
         self._ui(self.dashboard.refresh_clinical)
 
     def _schedule_clinical_cleanup(self):
-        QTimer.singleShot(3600_000, self._run_hourly_cleanup)
+        self._ui(lambda: QTimer.singleShot(3600_000, self._run_hourly_cleanup))
 
     def _run_hourly_cleanup(self):
         self.clinical.run_cleanup()
@@ -694,7 +713,15 @@ class DictationApp:
 
 
 def main():
+    if not ensure_single_instance():
+        print(
+            "Dictate is already running. Check the system tray or close the other instance.",
+            file=sys.stderr,
+        )
+        return
+
     qt_app = QApplication(sys.argv)
+    qt_app.setQuitOnLastWindowClosed(False)
     try:
         configure_frozen_vad()
     except Exception as exc:
@@ -723,11 +750,18 @@ def main():
                 )
                 return
             print(f"Failed to prepare punctuation model: {exc}", file=sys.stderr)
-    if not ensure_single_instance():
-        return
 
-    app = DictationApp(config)
-    app.run()
+    try:
+        app = DictationApp(config)
+        app.run()
+    except Exception as exc:
+        QMessageBox.critical(
+            None,
+            "Dictate",
+            f"Failed to start:\n{exc}",
+        )
+        raise
+
     sys.exit(qt_app.exec())
 
 

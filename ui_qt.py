@@ -366,10 +366,16 @@ class DashboardWindow(QMainWindow):
         self._setup_tray()
 
     def closeEvent(self, event):
-        event.ignore()
-        self.hide_to_tray()
+        if QSystemTrayIcon.isSystemTrayAvailable():
+            event.ignore()
+            self.hide_to_tray()
+            return
+        super().closeEvent(event)
 
     def _setup_tray(self):
+        self._tray = None
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            return
         self._tray = QSystemTrayIcon(_pil_icon(render_logo(64)), self)
         menu = self._tray.contextMenu()
         if menu is None:
@@ -593,7 +599,10 @@ class DashboardWindow(QMainWindow):
 
     def hide_to_tray(self):
         self.is_hidden = True
-        self.hide()
+        if self._tray is not None:
+            self.hide()
+        else:
+            self.showMinimized()
 
     def run(self):
         self.show()
