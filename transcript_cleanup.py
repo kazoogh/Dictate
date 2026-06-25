@@ -57,6 +57,8 @@ _SHOUTING_WORD = re.compile(r"\b[A-Z]{2,}\b")
 _KNOWN_PHRASES = (
     (re.compile(r"\bwhisper\s+flow\b", re.IGNORECASE), "Whisper Flow"),
     (re.compile(r"\bdictate\s+app\b", re.IGNORECASE), "Dictate app"),
+    (re.compile(r"\btelegram\b", re.IGNORECASE), "Telegram"),
+    (re.compile(r"\bmicrosoft\b", re.IGNORECASE), "Microsoft"),
 )
 
 _CONTINUATION_AFTER_PERIOD = re.compile(
@@ -95,6 +97,8 @@ _ACRONYMS = frozenset(
 def _strip_trailing_for_user_punct(text: str, user_punct: str) -> str:
     """Remove ONNX-added closing punctuation when the user dictates their own."""
     text = text.rstrip()
+    if user_punct in (".", "!", "?", "!!", ":", ";", ","):
+        text = re.sub(r",\s*$", "", text)
     if user_punct in (",", ";", ":"):
         text = re.sub(r"[,;:.!?]+\s*$", "", text)
     elif user_punct in (".", "!", "?", "!!"):

@@ -66,6 +66,21 @@ _SPOKEN_PHRASES: list[tuple[str, str]] = [
     (r"\ben\s+dash\b", "–"),
 ]
 
+# Whisper often garbles spoken punctuation commands — map back before parsing.
+_WHISPER_PUNCT_MISHEARS: list[tuple[str, str]] = [
+    (r"\bOr\s*!\b", "exclamation mark"),
+    (r"\bOr\s*\?\b", "question mark"),
+    (r"\bOr\s*:\b", "colon"),
+    (r"\bSemi\.?\b", "semicolon"),
+    (r"\bsemi\b(?=\s*(?:colon|period|$))", "semicolon"),
+    (r"\bexclamation\s+point\b", "exclamation mark"),
+    (r"\bquestion\s+point\b", "question mark"),
+]
+
+_WHISPER_MISHEAR_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (re.compile(src, re.IGNORECASE), repl) for src, repl in _WHISPER_PUNCT_MISHEARS
+]
+
 _SPOKEN_WORDS: dict[str, str] = {
     "underscore": "_",
     "asterisk": "*",
@@ -107,6 +122,13 @@ _COMMAND_PATTERNS: list[tuple[re.Pattern[str], str]] = [
 ]
 
 
+def repair_whisper_punctuation_mishears(text: str) -> str:
+    """Rewrite common Whisper mis-hearings of spoken punctuation commands."""
+    for pattern, replacement in _WHISPER_MISHEAR_PATTERNS:
+        text = pattern.sub(f" {replacement} ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def _find_earliest_command(text: str, start: int) -> tuple[re.Match[str], str] | None:
     best: tuple[re.Match[str], str] | None = None
     for pattern, symbol in _COMMAND_PATTERNS:
@@ -129,7 +151,8 @@ def iter_spoken_commands(text: str) -> Iterator[tuple[str, str]]:
     if not text or not text.strip():
         return
 
-    normalized = re.sub(r"\s+", " ", text.strip())
+    normalized = repair_whisper_punctuation_mishears(text)
+    normalized = re.sub(r"\s+", " ", normalized.strip())
     pos = 0
     while pos < len(normalized):
         found = _find_earliest_command(normalized, pos)
@@ -165,7 +188,10 @@ def merge_punctuated_pieces(pieces: list[str]) -> str:
             out.append(piece)
             continue
         if piece in ",;:!?":
-            out[-1] = prev.rstrip() + piece
+            if prev and prev[-1] in ",;:!?":
+                out[-1] = prev.rstrip() + " " + piece
+            else:
+                out[-1] = prev.rstrip() + piece
             continue
         if piece in ("...", "!!"):
             out[-1] = prev.rstrip() + piece

@@ -375,8 +375,14 @@ class Transcriber:
         }
         if self.vocabulary and self.config.get("vocabulary_correction", True):
             prompt = self.vocabulary.whisper_prompt()
+            punct_hints = (
+                "exclamation mark, question mark, colon, semicolon, comma, period, "
+                "apostrophe, Telegram, Microsoft"
+            )
             if prompt:
-                transcribe_kwargs["initial_prompt"] = prompt
+                transcribe_kwargs["initial_prompt"] = f"{prompt}, {punct_hints}"
+            else:
+                transcribe_kwargs["initial_prompt"] = punct_hints
         segments, _info = self.model.transcribe(wav_path, **transcribe_kwargs)
         segments = list(segments)
         text = " ".join(seg.text.strip() for seg in segments)

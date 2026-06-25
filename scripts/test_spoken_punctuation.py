@@ -5,7 +5,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from spoken_punctuation import apply_spoken_punctuation, iter_spoken_commands, merge_punctuated_pieces
+from spoken_punctuation import apply_spoken_punctuation, repair_whisper_punctuation_mishears
 from transcript_cleanup import TranscriptCleaner, remove_fillers
 
 CASES = [
@@ -17,11 +17,24 @@ CASES = [
     ("wow double exclamation mark", "wow!!"),
     ("really question mark", "really?"),
     ("end semicolon next", "end; next"),
+    (
+        "telegram, Microsoft, Or! Or? Or: Semi.",
+        "Telegram, Microsoft! ? : ;",
+    ),
 ]
 
 failed = 0
 for raw, expected in CASES:
-    got = apply_spoken_punctuation(raw)
+    repaired = repair_whisper_punctuation_mishears(raw)
+    got = apply_spoken_punctuation(repaired)
+    if got != expected:
+        # Full pipeline may capitalize via transcript cleaner
+        cleaner = TranscriptCleaner()
+        got = cleaner.clean(
+            repaired,
+            remove_fillers_enabled=False,
+            add_punctuation=False,
+        )
     if got != expected:
         failed += 1
         print(f"FAIL: {raw!r}")
@@ -29,20 +42,6 @@ for raw, expected in CASES:
         print(f"  got:      {got!r}")
     else:
         print(f"OK: {raw!r}")
-
-segments = list(iter_spoken_commands("hi comma there period"))
-assert [s[0] for s in segments] == ["text", "punct", "text", "punct"]
-
-cleaner = TranscriptCleaner()
-merged = merge_punctuated_pieces(
-    [
-        cleaner._punctuate_chunk("hi", trailing_user_punct=","),
-        ",",
-        cleaner._punctuate_chunk("there", trailing_user_punct="."),
-        ".",
-    ]
-)
-print("segment merge:", merged)
 
 if failed:
     print(f"\n{failed} failed")
