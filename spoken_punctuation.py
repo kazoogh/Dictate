@@ -72,7 +72,7 @@ _WHISPER_PUNCT_MISHEARS: list[tuple[str, str]] = [
     (r"\bOr\s*\?\b", "question mark"),
     (r"\bOr\s*:\b", "colon"),
     (r"\bSemi\.?\b", "semicolon"),
-    (r"\bsemi\b(?=\s*(?:colon|period|$))", "semicolon"),
+    (r"\bsemi\b(?=\s*(?:colon|[,.!?;:]|$))", "semicolon"),
     (r"\bexclamation\s+point\b", "exclamation mark"),
     (r"\bquestion\s+point\b", "question mark"),
 ]
@@ -80,6 +80,8 @@ _WHISPER_PUNCT_MISHEARS: list[tuple[str, str]] = [
 _WHISPER_MISHEAR_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(src, re.IGNORECASE), repl) for src, repl in _WHISPER_PUNCT_MISHEARS
 ]
+
+_FINAL_PERIOD_AS_SEMICOLON = re.compile(r"(\w)\.(?=\s*$)")
 
 _SPOKEN_WORDS: dict[str, str] = {
     "underscore": "_",
@@ -122,11 +124,20 @@ _COMMAND_PATTERNS: list[tuple[re.Pattern[str], str]] = [
 ]
 
 
+def _repair_final_period_as_semicolon(text: str) -> str:
+    """Whisper often turns a final dictated semicolon into a period on the last word."""
+    if len(re.findall(r"[?!:;]", text)) < 2:
+        return text
+    return _FINAL_PERIOD_AS_SEMICOLON.sub(r"\1;", text)
+
+
 def repair_whisper_punctuation_mishears(text: str) -> str:
     """Rewrite common Whisper mis-hearings of spoken punctuation commands."""
+    text = re.sub(r"\b(\w+)\.\s+Semi\.?\b", r" \1 semicolon ", text, flags=re.IGNORECASE)
     for pattern, replacement in _WHISPER_MISHEAR_PATTERNS:
         text = pattern.sub(f" {replacement} ", text)
-    return re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", text).strip()
+    return _repair_final_period_as_semicolon(text)
 
 
 def _find_earliest_command(text: str, start: int) -> tuple[re.Match[str], str] | None:

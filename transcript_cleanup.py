@@ -6,7 +6,7 @@ import re
 import threading
 
 from punctuation_assets import ensure_punctuation_assets
-from spoken_punctuation import iter_spoken_commands, merge_punctuated_pieces
+from spoken_punctuation import iter_spoken_commands, merge_punctuated_pieces, repair_whisper_punctuation_mishears
 
 _STANDALONE_FILLERS = frozenset(
     {
@@ -59,6 +59,8 @@ _KNOWN_PHRASES = (
     (re.compile(r"\bdictate\s+app\b", re.IGNORECASE), "Dictate app"),
     (re.compile(r"\btelegram\b", re.IGNORECASE), "Telegram"),
     (re.compile(r"\bmicrosoft\b", re.IGNORECASE), "Microsoft"),
+    (re.compile(r"\bgoogle\b", re.IGNORECASE), "Google"),
+    (re.compile(r"\bamazon\b", re.IGNORECASE), "Amazon"),
 )
 
 _CONTINUATION_AFTER_PERIOD = re.compile(
@@ -92,6 +94,11 @@ _ACRONYMS = frozenset(
         "USB",
     }
 )
+
+
+def _has_embedded_dictation_punctuation(text: str) -> bool:
+    """True when Whisper already inserted multiple explicit punctuation symbols."""
+    return len(re.findall(r"[?!:;]", text)) >= 2
 
 
 def _strip_trailing_for_user_punct(text: str, user_punct: str) -> str:
@@ -328,6 +335,8 @@ class TranscriptCleaner:
         if not text or not text.strip():
             return text
 
+        text = repair_whisper_punctuation_mishears(text)
+
         segments = list(iter_spoken_commands(text))
         if not segments:
             return text
@@ -383,7 +392,7 @@ class TranscriptCleaner:
         if remove_fillers_enabled:
             text = remove_fillers(text)
 
-        if add_punctuation:
+        if add_punctuation and not _has_embedded_dictation_punctuation(text):
             model = self._get_punctuation_model()
             plain = _strip_for_punctuation_model(text)
             if model is not None and plain:
@@ -393,6 +402,8 @@ class TranscriptCleaner:
                     text = _apply_sentence_case(plain)
             elif plain:
                 text = plain
+            text = _apply_sentence_case(text)
+        elif add_punctuation:
             text = _apply_sentence_case(text)
         else:
             text = _apply_sentence_case(text)

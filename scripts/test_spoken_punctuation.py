@@ -21,20 +21,16 @@ CASES = [
         "telegram, Microsoft, Or! Or? Or: Semi.",
         "Telegram, Microsoft! ? : ;",
     ),
+    (
+        "Just a quick example here, Telegram? Microsoft! Google: Amazon.",
+        "Just a quick example here, Telegram? Microsoft! Google: Amazon;",
+    ),
 ]
 
 failed = 0
+cleaner = TranscriptCleaner()
 for raw, expected in CASES:
-    repaired = repair_whisper_punctuation_mishears(raw)
-    got = apply_spoken_punctuation(repaired)
-    if got != expected:
-        # Full pipeline may capitalize via transcript cleaner
-        cleaner = TranscriptCleaner()
-        got = cleaner.clean(
-            repaired,
-            remove_fillers_enabled=False,
-            add_punctuation=False,
-        )
+    got = cleaner.clean(raw, remove_fillers_enabled=False, add_punctuation=True)
     if got != expected:
         failed += 1
         print(f"FAIL: {raw!r}")
