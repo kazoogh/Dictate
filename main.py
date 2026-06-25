@@ -26,6 +26,7 @@ from transcript_cleanup import TranscriptCleaner
 from ui_qt import DashboardWindow, StatusOverlay, format_hotkey_display
 from focus_text import get_focused_text
 from paste_learner import PasteLearner
+from vocabulary import VocabularyStore
 
 pyautogui.FAILSAFE = False
 pyautogui.PAUSE = 0.05
