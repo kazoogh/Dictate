@@ -1,0 +1,16 @@
+{
+  "procedure_type": "Denture",
+  "template_id": "denture_v1",
+  "version": "1.0",
+  "fields": [
+    { "id": "denture_type", "label": "Denture type (full/partial)", "type": "short_answer", "required": true, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "arch", "label": "Arch (upper/lower/both)", "type": "short_answer", "required": true, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "impression_taken", "label": "Impression taken", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "bite_registration", "label": "Bite registration taken", "type": "yes_no", "required": false, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "try_in_completed", "label": "Try-in completed", "type": "yes_no", "required": false, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "delivery_completed", "label": "Delivery completed", "type": "yes_no", "required": false, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "adjustments_made", "label": "Adjustments made", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "post_op_instructions", "label": "Post-op instructions given", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "next_visit_plan", "label": "Next visit plan", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" }
+  ]
+}

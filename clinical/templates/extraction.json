@@ -1,0 +1,180 @@
+{
+  "procedure_type": "Extraction",
+  "template_id": "extraction_ascend_v3",
+  "version": "3.0",
+  "source": "Dentrix Ascend — Extractions (Oral Surgery) clinical note",
+  "fields": [
+    {
+      "id": "consent_reviewed",
+      "label": "Pt signed and understood consent and all questions were answered",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "topical_benzocaine_on",
+      "label": "Numbed with benzocaine (topical numbing gel) on",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "anesthetic_area",
+      "label": "Area for anesthetic",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "injection on the facial gingiva",
+        "posterior superior alveolar (PSA) nerve block",
+        "middle superior alveolar (MSA) nerve block",
+        "inferior alveolar nerve (IAN) block",
+        "mental nerve block",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "anesthetic_carpules_qty",
+      "label": "Anesthetized with (carpules, qty)",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Whole number of carpules injected"
+    },
+    {
+      "id": "anesthetic_carpule_used",
+      "label": "Anesthetic, carpule used",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "used articaine (40 mg/mL) 4% with Epinephrine 1:100,000 (1.8 mL per Carp)",
+        "used carbocaine (30 mg/mL) 3% WITHOUT Epinephrine (1.7 mL per Carp)",
+        "did not use numbing injection; Only topical anesthetic was used.",
+        "did not use any numbing per patient's request.",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "teeth_extracted",
+      "label": "Nonsurgical extraction of tooth # (Tooth-Select Multiple)",
+      "type": "free_text",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "List tooth number(s) extracted today (e.g. 3, 19, 30)"
+    },
+    {
+      "id": "extraction_completed",
+      "label": "Nonsurgical extraction completed with elevator and universal forceps",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "cleaning",
+      "label": "Cleaning (SRP or Prophy at this visit)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "SRP was NOT completed",
+        "SRP completed on Upper Left (UL) Quadrant w/ ultrasonic scaler",
+        "SRP completed on Upper Right (UR) Quadrant w/ ultrasonic scaler",
+        "SRP completed on Lower Right (LR) Quadrant w/ ultrasonic scaler",
+        "SRP completed on Lower Left (LL) Quadrant w/ ultrasonic scaler",
+        "Prophy completed w/ ultrasonic scaler",
+        "No cleaning done today",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "post_op_instructions",
+      "label": "Gave pt verbal and written post-op instructions",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "sterilized_gauze",
+      "label": "Sterilized gauze provided",
+      "type": "yes_no",
+      "required": false,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "rx_drug_name",
+      "label": "Rx drug name prescribed",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "Nothing",
+        "Augmentin 875 mg",
+        "Clindamycin 300 mg",
+        "Tylenol 325 mg",
+        "Motrin 800 mg",
+        "Flagly 500 mg",
+        "Chlorhexidine Gluconate Oral Rinse USP, 0.12%",
+        "Magic Mouthwash",
+        "Mycelex Troches 10mg",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "post_op_pano_taken",
+      "label": "Post op pano taken",
+      "type": "yes_no",
+      "required": false,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "next_visit",
+      "label": "NV (next visit — describe in detail)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "additional_notes",
+      "label": "Additional Notes",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "assistant_initials",
+      "label": "Assistant Initials (Employee Initials)",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "doctor_completed",
+      "label": "Doctor who completed procedure (Doctor's Initials)",
+      "type": "short_answer",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    }
+  ]
+}

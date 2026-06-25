@@ -1,0 +1,146 @@
+{
+  "version": "1.0",
+  "description": "Custom terms for Dictate. Add canonical spellings and homophones Whisper often gets wrong.",
+  "terms": [
+    {
+      "term": "Telegram",
+      "aliases": ["teddy graham", "telly gram", "tele gram"]
+    },
+    {
+      "term": "Microsoft",
+      "aliases": ["micro soft", "micros soft"]
+    },
+    {
+      "term": "DOCX",
+      "aliases": ["doc x", "dock x", "microsoft word document"]
+    },
+    {
+      "term": "PDF",
+      "aliases": ["p d f", "pee dee eff", "pdf file"]
+    },
+    {
+      "term": "EXE",
+      "aliases": ["e x e", "dot exe", "executable file"]
+    },
+    {
+      "term": "Dentrix",
+      "aliases": ["dent tricks", "dentrix"]
+    },
+    {
+      "term": "Dentrix Ascend",
+      "aliases": ["dentrix accent", "dent tricks ascend"]
+    },
+    {
+      "term": "Whisper",
+      "aliases": ["whisper flow", "wisper"]
+    },
+    {
+      "term": "Dictate",
+      "aliases": ["dict eight", "this dictate app"]
+    },
+    {
+      "term": "PyInstaller",
+      "aliases": ["pie installer", "py installer"]
+    },
+    {
+      "term": "OpenAI",
+      "aliases": ["open a i", "open ai"]
+    },
+    {
+      "term": "ONNX",
+      "aliases": ["o n n x", "onix"]
+    },
+    {
+      "term": "JSON",
+      "aliases": ["jay son", "j son"]
+    },
+    {
+      "term": "SQLite",
+      "aliases": ["s q lite", "sequel lite"]
+    },
+    {
+      "term": "PowerShell",
+      "aliases": ["power shell"]
+    },
+    {
+      "term": "GitHub",
+      "aliases": ["git hub"]
+    },
+    {
+      "term": "JavaScript",
+      "aliases": ["java script"]
+    },
+    {
+      "term": "TypeScript",
+      "aliases": ["type script"]
+    },
+    {
+      "term": "Wi-Fi",
+      "aliases": ["wifi", "wi fi"]
+    },
+    {
+      "term": "API",
+      "aliases": ["a p i"]
+    },
+    {
+      "term": "URL",
+      "aliases": ["u r l"]
+    },
+    {
+      "term": "USB",
+      "aliases": ["u s b"]
+    },
+    {
+      "term": "CPU",
+      "aliases": ["c p u"]
+    },
+    {
+      "term": "GPU",
+      "aliases": ["g p u"]
+    },
+    {
+      "term": "RAM",
+      "aliases": ["r a m"]
+    },
+    {
+      "term": "SSD",
+      "aliases": ["s s d"]
+    },
+    {
+      "term": "Windows",
+      "aliases": []
+    },
+    {
+      "term": "Excel",
+      "aliases": []
+    },
+    {
+      "term": "Outlook",
+      "aliases": []
+    },
+    {
+      "term": "Teams",
+      "aliases": []
+    },
+    {
+      "term": "Slack",
+      "aliases": []
+    },
+    {
+      "term": "Zoom",
+      "aliases": []
+    },
+    {
+      "term": "Chrome",
+      "aliases": []
+    },
+    {
+      "term": "Google",
+      "aliases": []
+    },
+    {
+      "term": "Python",
+      "aliases": []
+    }
+  ]
+}

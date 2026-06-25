@@ -1,0 +1,259 @@
+@import "tailwindcss";
+@import "./tw-animate.css";
+
+/* limit the size of max height elements */
+.h-screen {
+  height: 956px !important;
+}
+.min-h-screen {
+  min-height: 956px !important;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0;
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  font-family:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.font-sans {
+  font-family:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.font-mono {
+  font-family:
+    "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+.font-serif {
+  font-family:
+    "Source Serif 4", "Inter", ui-serif, Georgia, Cambria, "Times New Roman",
+    Times, serif;
+}
+
+@theme inline {
+  --radius: 0.65rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.623 0.214 259.815);
+  --primary-foreground: oklch(0.97 0.014 254.604);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.623 0.214 259.815);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.623 0.214 259.815);
+  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.623 0.214 259.815);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.bg-background {
+  background: var(--color-background);
+}
+.bg-foreground {
+  background: var(--color-foreground);
+}
+.bg-card {
+  background: var(--color-card);
+}
+.bg-card-foreground {
+  background: var(--color-card-foreground);
+}
+.bg-popover {
+  background: var(--color-popover);
+}
+.bg-popover-foreground {
+  background: var(--color-popover-foreground);
+}
+.bg-primary {
+  background: var(--color-primary);
+}
+.bg-primary-foreground {
+  background: var(--color-primary-foreground);
+}
+.bg-secondary {
+  background: var(--color-secondary);
+}
+.bg-secondary-foreground {
+  background: var(--color-secondary-foreground);
+}
+.bg-muted {
+  background: var(--color-muted);
+}
+.bg-muted-foreground {
+  background: var(--color-muted-foreground);
+}
+.bg-accent {
+  background: var(--color-accent);
+}
+.bg-accent-foreground {
+  background: var(--color-accent-foreground);
+}
+.bg-destructive {
+  background: var(--color-destructive);
+}
+.bg-border {
+  background: var(--color-border);
+}
+.bg-input {
+  background: var(--color-input);
+}
+.bg-ring {
+  background: var(--color-ring);
+}
+
+.text-card {
+  color: var(--color-card);
+}
+.text-card-foreground {
+  color: var(--color-card-foreground);
+}
+.text-popover {
+  color: var(--color-popover);
+}
+.text-popover-foreground {
+  color: var(--color-popover-foreground);
+}
+.text-primary {
+  color: var(--color-primary);
+}
+.text-primary-foreground {
+  color: var(--color-primary-foreground);
+}
+.text-secondary {
+  color: var(--color-secondary);
+}
+.text-secondary-foreground {
+  color: var(--color-secondary-foreground);
+}
+.text-muted {
+  color: var(--color-muted);
+}
+.text-muted-foreground {
+  color: var(--color-muted-foreground);
+}
+.text-accent {
+  color: var(--color-accent);
+}
+.text-accent-foreground {
+  color: var(--color-accent-foreground);
+}
+.text-destructive {
+  color: var(--color-destructive);
+}
+.text-border {
+  color: var(--color-border);
+}
+.text-input {
+  color: var(--color-input);
+}
+.text-ring {
+  color: var(--color-ring);
+}
+.border {
+  border-color: var(--color-border);
+}
+.border-border {
+  border-color: var(--color-border);
+}
+.border-primary {
+  border-color: var(--color-primary);
+}
+.border-secondary {
+  border-color: var(--color-secondary);
+}
+.border-muted {
+  border-color: var(--color-muted);
+}
+.border-accent {
+  border-color: var(--color-accent);
+}
+.border-destructive {
+  border-color: var(--color-destructive);
+}
+.border-input {
+  border-color: var(--color-input);
+}
+.border-ring {
+  border-color: var(--color-border);
+}
+.border-t {
+  border-color: var(--color-border);
+}
+.border-b {
+  border-color: var(--color-border);
+}
+.border-l {
+  border-color: var(--color-border);
+}
+.border-r {
+  border-color: var(--color-border);
+}

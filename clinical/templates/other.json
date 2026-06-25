@@ -1,0 +1,14 @@
+{
+  "procedure_type": "Other",
+  "template_id": "other_v1",
+  "version": "1.0",
+  "fields": [
+    { "id": "procedure_description", "label": "Procedure description", "type": "free_text", "required": true, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "tooth_treated", "label": "Tooth/teeth treated", "type": "short_answer", "required": false, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "anesthesia_used", "label": "Was anesthesia used?", "type": "yes_no", "required": false, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "procedure_completed", "label": "Procedure completed", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "complications", "label": "Complications", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "post_op_instructions", "label": "Post-op instructions given", "type": "yes_no", "required": false, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "next_visit_plan", "label": "Next visit plan", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" }
+  ]
+}

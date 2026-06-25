@@ -1,0 +1,16 @@
+{
+  "procedure_type": "Crown",
+  "template_id": "crown_v1",
+  "version": "1.0",
+  "fields": [
+    { "id": "tooth_treated", "label": "Tooth/teeth treated", "type": "short_answer", "required": true, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "crown_type", "label": "Crown type/material", "type": "short_answer", "required": true, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "prep_completed", "label": "Prep completed", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "impression_taken", "label": "Impression taken", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "temp_crown_placed", "label": "Temporary crown placed", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "anesthesia_used", "label": "Was anesthesia used?", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "complications", "label": "Complications", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "post_op_instructions", "label": "Post-op instructions given", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "next_visit_plan", "label": "Next visit plan", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" }
+  ]
+}

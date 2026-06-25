@@ -1,0 +1,216 @@
+{
+  "procedure_type": "Filling",
+  "template_id": "filling_ascend_v3",
+  "version": "3.0",
+  "source": "Dentrix Ascend — Fillings (Restorative) clinical note",
+  "fields": [
+    {
+      "id": "fillings_on_quadrant",
+      "label": "Pt presents for fillings on (quadrant / teeth)",
+      "type": "free_text",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Quadrant-Select Multiple: UR, UL, LR, LL and/or tooth numbers"
+    },
+    {
+      "id": "consent_reviewed",
+      "label": "Pt signed and understood consent and all questions were answered",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "topical_benzocaine_on",
+      "label": "Numbed with benzocaine (topical numbing gel) on",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "anesthetic_area",
+      "label": "Area for anesthetic",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "injection on the facial gingiva",
+        "posterior superior alveolar (PSA) nerve block",
+        "middle superior alveolar (MSA) nerve block",
+        "inferior alveolar nerve (IAN) block",
+        "mental nerve block",
+        "did not use numbing injection; Only topical anesthetic was used.",
+        "did not use any numbing per patient's request.",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "anesthetic_carpules_qty",
+      "label": "Anesthetized with (carpules, qty)",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Whole number of carpules injected"
+    },
+    {
+      "id": "anesthetic_carpule_used",
+      "label": "Anesthetic, carpule used",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "used articaine (40 mg/mL) 4% with Epinephrine 1:100,000 (1.8 mL per Carp)",
+        "used carbocaine (30 mg/mL) 3% WITHOUT Epinephrine (1.7 mL per Carp)",
+        "did not use numbing injection; Only topical anesthetic was used.",
+        "did not use any numbing per patient's request.",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "decay_removed",
+      "label": "Removed all decay",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "isolated",
+      "label": "Isolated",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "gc_bond_applied",
+      "label": "Applied GC bond",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "light_cured_bond",
+      "label": "Light cured (bond)",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "shade_letter",
+      "label": "Shade letter",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": ["A", "B", "C", "D", "Custom Shade Letter", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "shade_number",
+      "label": "Shade #",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "Shade number for selected shade letter and guide"
+    },
+    {
+      "id": "teeth_restored",
+      "label": "Teeth # restored (tooth # and surface(s) restored today)",
+      "type": "free_text",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review",
+      "hint": "List each tooth # and surfaces restored (e.g. 14 MOD, 15 DO). Only teeth restored today."
+    },
+    {
+      "id": "light_cured_composite",
+      "label": "Light cured (composite)",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "occlusion_adjusted",
+      "label": "Smoothed rough surfaces and idealized occlusion seen by using articulating paper",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "cleaning",
+      "label": "Cleaning (SRP or Prophy at this visit)",
+      "type": "multiple_choice",
+      "required": false,
+      "allowed_answers": [
+        "SRP was NOT completed",
+        "SRP completed on Upper Left (UL) Quadrant w/ ultrasonic scaler",
+        "SRP completed on Upper Right (UR) Quadrant w/ ultrasonic scaler",
+        "SRP completed on Lower Right (LR) Quadrant w/ ultrasonic scaler",
+        "SRP completed on Lower Left (LL) Quadrant w/ ultrasonic scaler",
+        "Prophy completed w/ ultrasonic scaler",
+        "No cleaning done today",
+        "Needs Human Review"
+      ],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "post_op_instructions",
+      "label": "Gave pt post-op instructions",
+      "type": "yes_no",
+      "required": true,
+      "allowed_answers": ["Yes", "No", "Needs Human Review"],
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "next_visit",
+      "label": "NV (next visit — describe in detail)",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "additional_notes",
+      "label": "Additional Notes",
+      "type": "free_text",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "assistant_initials",
+      "label": "Assistant Initials (Employee Initials)",
+      "type": "short_answer",
+      "required": false,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    },
+    {
+      "id": "doctor_completed",
+      "label": "Doctor who completed procedure(s) (Doctor's Initials)",
+      "type": "short_answer",
+      "required": true,
+      "evidence_required": true,
+      "fallback": "Needs Human Review"
+    }
+  ]
+}

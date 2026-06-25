@@ -1,0 +1,15 @@
+{
+  "hotkey": "<end>",
+  "clinical_hotkey": "<ctrl>+<alt>+r",
+  "model_size": "base",
+  "device": "cpu",
+  "compute_type": "int8",
+  "language": "en",
+  "sample_rate": 16000,
+  "channels": 1,
+  "restore_clipboard_after_paste": false,
+  "max_history_entries": 500,
+  "openai_model": "gpt-4o-mini",
+  "clinical_retention_days": "7",
+  "clinical_max_duration_hours": 2
+}

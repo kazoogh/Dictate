@@ -1,0 +1,15 @@
+{
+  "procedure_type": "New Patient Exam",
+  "template_id": "new_patient_exam_v1",
+  "version": "1.0",
+  "fields": [
+    { "id": "chief_complaint", "label": "Chief complaint", "type": "free_text", "required": true, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "medical_history_reviewed", "label": "Medical history reviewed", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "radiographs_taken", "label": "Radiographs taken", "type": "yes_no", "required": false, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "periodontal_assessment", "label": "Periodontal assessment", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "caries_findings", "label": "Caries findings", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "treatment_plan_discussed", "label": "Treatment plan discussed", "type": "yes_no", "required": true, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "oral_hygiene_instructions", "label": "Oral hygiene instructions given", "type": "yes_no", "required": false, "allowed_answers": ["Yes", "No", "Needs Human Review"], "evidence_required": true, "fallback": "Needs Human Review" },
+    { "id": "next_visit_plan", "label": "Next visit plan", "type": "free_text", "required": false, "evidence_required": true, "fallback": "Needs Human Review" }
+  ]
+}

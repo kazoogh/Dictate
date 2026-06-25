@@ -1,0 +1,12 @@
+faster-whisper
+sounddevice
+numpy
+scipy
+pynput
+pyperclip
+pyautogui
+Pillow
+sherpa-onnx
+rapidfuzz
+PySide6
+uiautomation
