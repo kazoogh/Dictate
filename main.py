@@ -24,7 +24,6 @@ from scipy.io import wavfile
 
 from clinical.service import ClinicalManager
 from native_bridge import HotkeyCallback, NativeShell
-from spoken_punctuation import apply_spoken_punctuation
 from transcript_cleanup import TranscriptCleaner
 from ui_qt import DashboardWindow, StatusOverlay, format_hotkey_display
 from focus_text import get_focused_text
@@ -203,7 +202,7 @@ def _native_hotkey_trampoline(hotkey_id: int, _userdata) -> None:
 
 class HistoryStore:
     def __init__(self, path: Path = HISTORY_PATH, max_entries: int = 500):
-        self.path = path
+        self.path = Path(path).resolve()
         self.max_entries = max_entries
         self._lock = threading.Lock()
         self._data = self._load()
@@ -220,9 +219,22 @@ class HistoryStore:
         return {"entries": []}
 
     def _save(self) -> None:
-        with open(self.path, "w", encoding="utf-8") as f:
-            json.dump(self._data, f, indent=2)
-            f.write("\n")
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = self.path.with_suffix(self.path.suffix + ".tmp")
+        try:
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(self._data, f, indent=2)
+                f.write("\n")
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, self.path)
+        except OSError:
+            if tmp_path.exists():
+                try:
+                    tmp_path.unlink()
+                except OSError:
+                    pass
+            raise
 
     def add(self, text: str, duration_sec: float) -> dict:
         entry = {
@@ -724,10 +736,14 @@ class DictationApp:
             if not text.strip():
                 self._notify("No speech detected.", state="idle", auto_hide_ms=3000)
                 return
-            text = apply_spoken_punctuation(text)
-            if self.config.get("dictation_cleanup", True):
+            cleanup = self.config.get("dictation_cleanup", True)
+            if cleanup:
                 self._notify("Cleaning up…", state="working")
-                text = self.transcript_cleaner.clean(text)
+            text = self.transcript_cleaner.clean(
+                text,
+                remove_fillers_enabled=cleanup,
+                add_punctuation=cleanup,
+            )
             self.history.add(text, duration)
             self._ui(self.dashboard.refresh)
             if self.paste_manager.paste(text):

@@ -6,6 +6,7 @@ import re
 import threading
 
 from punctuation_assets import ensure_punctuation_assets
+from spoken_punctuation import iter_spoken_commands, merge_punctuated_pieces
 
 _STANDALONE_FILLERS = frozenset(
     {
@@ -91,7 +92,18 @@ _ACRONYMS = frozenset(
 )
 
 
-_EXPLICIT_PUNCTUATION = re.compile(r"[,;:.!?\'\"\n@#/\\()\[\]{}]")
+def _strip_trailing_for_user_punct(text: str, user_punct: str) -> str:
+    """Remove ONNX-added closing punctuation when the user dictates their own."""
+    text = text.rstrip()
+    if user_punct in (",", ";", ":"):
+        text = re.sub(r"[,;:.!?]+\s*$", "", text)
+    elif user_punct in (".", "!", "?", "!!"):
+        text = re.sub(r"[!?.]+\s*$", "", text)
+    elif user_punct in ("-", "—", "–"):
+        text = re.sub(r"[-–—]+\s*$", "", text)
+    elif user_punct == "...":
+        text = re.sub(r"\.{2,}\s*$", "", text)
+    return text.rstrip()
 
 
 class _OnnxPunctuation:
@@ -115,7 +127,8 @@ def _fix_punctuation_artifacts(text: str) -> str:
     text = re.sub(r",\s*,+", ", ", text)
     text = re.sub(r",\s*\.", ".", text)
     text = re.sub(r"\.\s*,", ".", text)
-    text = re.sub(r"\.{2,}", ".", text)
+    text = re.sub(r"\.{3,}", "...", text)
+    text = re.sub(r"(?<!\.)\.{2}(?!\.)", ".", text)
     text = re.sub(r",\s*$", "", text)
     text = re.sub(r"^\s*,\s*", "", text)
     text = re.sub(r"\s+([,.?!:;])", r"\1", text)
@@ -157,9 +170,18 @@ def _fix_shouting(text: str) -> str:
     return _SHOUTING_WORD.sub(_replace, text)
 
 
+def _fix_possessives(text: str) -> str:
+    return re.sub(
+        r"(\w)'([A-Z])\b",
+        lambda m: f"{m.group(1)}'{m.group(2).lower()}",
+        text,
+    )
+
+
 def _apply_sentence_case(text: str) -> str:
     text = _fix_punctuation_artifacts(text)
     text = _fix_shouting(text)
+    text = _fix_possessives(text)
     parts = re.split(r"(?<=[.!?])\s+", text.strip())
     out: list[str] = []
     for part in parts:
@@ -271,6 +293,27 @@ class TranscriptCleaner:
     def punctuation_available(self) -> bool:
         return self._get_punctuation_model() is not None
 
+    def _punctuate_chunk(self, text: str, *, trailing_user_punct: str | None = None) -> str:
+        if not text or not text.strip():
+            return text
+
+        model = self._get_punctuation_model()
+        plain = _strip_for_punctuation_model(text)
+        if model is not None and plain:
+            try:
+                result = model.restore_punctuation(plain)
+            except Exception:
+                result = _apply_sentence_case(plain)
+        elif plain:
+            result = _apply_sentence_case(plain)
+        else:
+            result = text
+
+        result = _apply_sentence_case(result)
+        if trailing_user_punct:
+            result = _strip_trailing_for_user_punct(result, trailing_user_punct)
+        return result
+
     def clean(
         self,
         text: str,
@@ -281,23 +324,72 @@ class TranscriptCleaner:
         if not text or not text.strip():
             return text
 
+        segments = list(iter_spoken_commands(text))
+        if not segments:
+            return text
+
+        has_spoken_commands = any(kind == "punct" for kind, _ in segments)
+        if not has_spoken_commands:
+            return self._clean_plain(
+                text,
+                remove_fillers_enabled=remove_fillers_enabled,
+                add_punctuation=add_punctuation,
+            )
+
+        merged: list[str] = []
+        index = 0
+        while index < len(segments):
+            kind, value = segments[index]
+            if kind == "punct":
+                merged.append(value)
+                index += 1
+                continue
+
+            trailing = None
+            if index + 1 < len(segments) and segments[index + 1][0] == "punct":
+                trailing = segments[index + 1][1]
+
+            chunk = value
+            if remove_fillers_enabled:
+                chunk = remove_fillers(chunk)
+
+            if add_punctuation:
+                chunk = self._punctuate_chunk(chunk, trailing_user_punct=trailing)
+            else:
+                chunk = _apply_sentence_case(chunk)
+                if trailing:
+                    chunk = _strip_trailing_for_user_punct(chunk, trailing)
+
+            merged.append(chunk)
+            index += 1
+            if trailing is not None:
+                merged.append(trailing)
+                index += 1
+
+        result = merge_punctuated_pieces(merged)
+        return _fix_punctuation_artifacts(result)
+
+    def _clean_plain(
+        self,
+        text: str,
+        *,
+        remove_fillers_enabled: bool = True,
+        add_punctuation: bool = True,
+    ) -> str:
         if remove_fillers_enabled:
             text = remove_fillers(text)
 
         if add_punctuation:
-            if _EXPLICIT_PUNCTUATION.search(text):
-                text = _apply_sentence_case(text)
-            else:
-                model = self._get_punctuation_model()
-                plain = _strip_for_punctuation_model(text)
-                if model is not None and plain:
-                    try:
-                        text = model.restore_punctuation(plain)
-                    except Exception:
-                        text = _apply_sentence_case(plain)
-                elif plain:
-                    text = plain
-                text = _apply_sentence_case(text)
+            model = self._get_punctuation_model()
+            plain = _strip_for_punctuation_model(text)
+            if model is not None and plain:
+                try:
+                    text = model.restore_punctuation(plain)
+                except Exception:
+                    text = _apply_sentence_case(plain)
+            elif plain:
+                text = plain
+            text = _apply_sentence_case(text)
         else:
             text = _apply_sentence_case(text)
 
