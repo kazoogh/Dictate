@@ -22,7 +22,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
-    QSizePolicy,
     QStackedWidget,
     QSystemTrayIcon,
     QVBoxLayout,
@@ -63,12 +62,46 @@ QScrollArea {{
 }}
 QScrollBar:vertical {{
     width: 8px;
-    background: transparent;
+    background: {BG};
+    margin: 0;
+    border: none;
 }}
 QScrollBar::handle:vertical {{
     background: #D4D4D8;
     border-radius: 4px;
     min-height: 24px;
+}}
+QScrollBar::handle:vertical:hover {{
+    background: #A1A1AA;
+}}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+    height: 0;
+    border: none;
+    background: none;
+}}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
+    background: {BG};
+    border: none;
+}}
+QScrollBar:horizontal {{
+    height: 8px;
+    background: {BG};
+    margin: 0;
+    border: none;
+}}
+QScrollBar::handle:horizontal {{
+    background: #D4D4D8;
+    border-radius: 4px;
+    min-width: 24px;
+}}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+    width: 0;
+    border: none;
+    background: none;
+}}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {{
+    background: {BG};
+    border: none;
 }}
 QPushButton {{
     border: none;
@@ -538,9 +571,10 @@ class DashboardWindow(QMainWindow):
 
         list_card = _card()
         lc = QVBoxLayout(list_card)
-        lc.setContentsMargins(20, 20, 20, 20)
+        lc.setContentsMargins(20, 20, 8, 20)
         lc.setSpacing(12)
         head = QHBoxLayout()
+        head.setContentsMargins(0, 0, 12, 0)
         head.addWidget(_icon_label("file-text", 18, MUTED))
         title = QLabel("Transcriptions")
         title.setFont(QFont("Segoe UI", 13, QFont.Weight.DemiBold))
@@ -553,17 +587,21 @@ class DashboardWindow(QMainWindow):
         )
         head.addWidget(self._count_badge)
         lc.addLayout(head)
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._history_scroll = QScrollArea()
+        self._history_scroll.setWidgetResizable(True)
+        self._history_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self._history_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._history_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self._history_scroll.setStyleSheet(
+            "QScrollArea { border: none; background: white; }"
+        )
         self._history_body = QWidget()
         self._history_area = QVBoxLayout(self._history_body)
         self._history_area.setSpacing(10)
         self._history_area.setContentsMargins(0, 0, 4, 0)
         self._history_area.setAlignment(Qt.AlignmentFlag.AlignTop)
-        scroll.setWidget(self._history_body)
-        lc.addWidget(scroll, 1)
+        self._history_scroll.setWidget(self._history_body)
+        lc.addWidget(self._history_scroll, 1)
         left.addWidget(list_card, 1)
         layout.addLayout(left, 2)
 
@@ -793,7 +831,6 @@ class DashboardWindow(QMainWindow):
         else:
             for entry in entries:
                 self._history_area.addWidget(self._history_row(entry))
-        self._history_body.adjustSize()
         stats = self.app.history.get_stats()
         self._stat_labels["time"].setText(format_total_time(stats["total_seconds"]))
         self._stat_labels["words"].setText(f"{stats['total_words']:,}")
@@ -859,7 +896,8 @@ class DashboardWindow(QMainWindow):
 
     def run(self):
         self.show()
-        self.refresh()
+        # Populate after layout has real dimensions (avoids empty scroll viewport).
+        QTimer.singleShot(0, self.refresh)
         self.app._notify("Loading Whisper model…", state="loading")
 
     def destroy(self):
