@@ -4,107 +4,179 @@
   "terms": [
     {
       "term": "Telegram",
-      "aliases": ["teddy graham", "telly gram", "tele gram"]
+      "aliases": [
+        "teddy graham",
+        "telly gram",
+        "tele gram",
+        "telegram"
+      ]
     },
     {
       "term": "Microsoft",
-      "aliases": ["micro soft", "micros soft"]
+      "aliases": [
+        "micro soft",
+        "micros soft"
+      ]
     },
     {
       "term": "DOCX",
-      "aliases": ["doc x", "dock x", "microsoft word document"]
+      "aliases": [
+        "doc x",
+        "dock x",
+        "microsoft word document"
+      ]
     },
     {
       "term": "PDF",
-      "aliases": ["p d f", "pee dee eff", "pdf file"]
+      "aliases": [
+        "p d f",
+        "pee dee eff",
+        "pdf file"
+      ]
     },
     {
       "term": "EXE",
-      "aliases": ["e x e", "dot exe", "executable file"]
+      "aliases": [
+        "e x e",
+        "dot exe",
+        "executable file"
+      ]
     },
     {
       "term": "Dentrix",
-      "aliases": ["dent tricks", "dentrix"]
+      "aliases": [
+        "dent tricks",
+        "dentrix"
+      ]
     },
     {
       "term": "Dentrix Ascend",
-      "aliases": ["dentrix accent", "dent tricks ascend"]
+      "aliases": [
+        "dentrix accent",
+        "dent tricks ascend"
+      ]
     },
     {
       "term": "Whisper",
-      "aliases": ["whisper flow", "wisper"]
+      "aliases": [
+        "whisper flow",
+        "wisper"
+      ]
     },
     {
       "term": "Dictate",
-      "aliases": ["dict eight", "this dictate app"]
+      "aliases": [
+        "dict eight",
+        "this dictate app"
+      ]
     },
     {
       "term": "PyInstaller",
-      "aliases": ["pie installer", "py installer"]
+      "aliases": [
+        "pie installer",
+        "py installer"
+      ]
     },
     {
       "term": "OpenAI",
-      "aliases": ["open a i", "open ai"]
+      "aliases": [
+        "open a i",
+        "open ai"
+      ]
     },
     {
       "term": "ONNX",
-      "aliases": ["o n n x", "onix"]
+      "aliases": [
+        "o n n x",
+        "onix"
+      ]
     },
     {
       "term": "JSON",
-      "aliases": ["jay son", "j son"]
+      "aliases": [
+        "jay son",
+        "j son"
+      ]
     },
     {
       "term": "SQLite",
-      "aliases": ["s q lite", "sequel lite"]
+      "aliases": [
+        "s q lite",
+        "sequel lite"
+      ]
     },
     {
       "term": "PowerShell",
-      "aliases": ["power shell"]
+      "aliases": [
+        "power shell"
+      ]
     },
     {
       "term": "GitHub",
-      "aliases": ["git hub"]
+      "aliases": [
+        "git hub"
+      ]
     },
     {
       "term": "JavaScript",
-      "aliases": ["java script"]
+      "aliases": [
+        "java script"
+      ]
     },
     {
       "term": "TypeScript",
-      "aliases": ["type script"]
+      "aliases": [
+        "type script"
+      ]
     },
     {
       "term": "Wi-Fi",
-      "aliases": ["wifi", "wi fi"]
+      "aliases": [
+        "wifi",
+        "wi fi"
+      ]
     },
     {
       "term": "API",
-      "aliases": ["a p i"]
+      "aliases": [
+        "a p i"
+      ]
     },
     {
       "term": "URL",
-      "aliases": ["u r l"]
+      "aliases": [
+        "u r l"
+      ]
     },
     {
       "term": "USB",
-      "aliases": ["u s b"]
+      "aliases": [
+        "u s b"
+      ]
     },
     {
       "term": "CPU",
-      "aliases": ["c p u"]
+      "aliases": [
+        "c p u"
+      ]
     },
     {
       "term": "GPU",
-      "aliases": ["g p u"]
+      "aliases": [
+        "g p u"
+      ]
     },
     {
       "term": "RAM",
-      "aliases": ["r a m"]
+      "aliases": [
+        "r a m"
+      ]
     },
     {
       "term": "SSD",
-      "aliases": ["s s d"]
+      "aliases": [
+        "s s d"
+      ]
     },
     {
       "term": "Windows",
@@ -140,7 +212,1364 @@
     },
     {
       "term": "Python",
-      "aliases": []
+      "aliases": [
+        "python",
+        "pie thon"
+      ],
+      "category": "tech"
+    },
+    {
+      "term": "Aaron",
+      "category": "name",
+      "aliases": [
+        "aaron"
+      ]
+    },
+    {
+      "term": "Adam",
+      "category": "name",
+      "aliases": [
+        "adam"
+      ]
+    },
+    {
+      "term": "Alan",
+      "category": "name",
+      "aliases": [
+        "alan"
+      ]
+    },
+    {
+      "term": "Alex",
+      "category": "name",
+      "aliases": [
+        "alex"
+      ]
+    },
+    {
+      "term": "Alexander",
+      "category": "name",
+      "aliases": [
+        "alexander"
+      ]
+    },
+    {
+      "term": "Amanda",
+      "category": "name",
+      "aliases": [
+        "amanda"
+      ]
+    },
+    {
+      "term": "Amy",
+      "category": "name",
+      "aliases": [
+        "amy"
+      ]
+    },
+    {
+      "term": "Andrew",
+      "category": "name",
+      "aliases": [
+        "andrew"
+      ]
+    },
+    {
+      "term": "Angela",
+      "category": "name",
+      "aliases": [
+        "angela"
+      ]
+    },
+    {
+      "term": "Anna",
+      "category": "name",
+      "aliases": [
+        "anna"
+      ]
+    },
+    {
+      "term": "Anthony",
+      "category": "name",
+      "aliases": [
+        "anthony"
+      ]
+    },
+    {
+      "term": "Ashley",
+      "category": "name",
+      "aliases": [
+        "ashley"
+      ]
+    },
+    {
+      "term": "Austin",
+      "category": "name",
+      "aliases": [
+        "austin"
+      ]
+    },
+    {
+      "term": "Benjamin",
+      "category": "name",
+      "aliases": [
+        "benjamin",
+        "ben"
+      ]
+    },
+    {
+      "term": "Brandon",
+      "category": "name",
+      "aliases": [
+        "brandon"
+      ]
+    },
+    {
+      "term": "Brian",
+      "category": "name",
+      "aliases": [
+        "brian"
+      ]
+    },
+    {
+      "term": "Bruce",
+      "category": "name",
+      "aliases": [
+        "bruce"
+      ]
+    },
+    {
+      "term": "Carl",
+      "category": "name",
+      "aliases": [
+        "carl"
+      ]
+    },
+    {
+      "term": "Charles",
+      "category": "name",
+      "aliases": [
+        "charles",
+        "charlie"
+      ]
+    },
+    {
+      "term": "Chris",
+      "category": "name",
+      "aliases": [
+        "chris"
+      ]
+    },
+    {
+      "term": "Christopher",
+      "category": "name",
+      "aliases": [
+        "christopher"
+      ]
+    },
+    {
+      "term": "Daniel",
+      "category": "name",
+      "aliases": [
+        "daniel",
+        "dan"
+      ]
+    },
+    {
+      "term": "David",
+      "category": "name",
+      "aliases": [
+        "david",
+        "dave"
+      ]
+    },
+    {
+      "term": "Dennis",
+      "category": "name",
+      "aliases": [
+        "dennis"
+      ]
+    },
+    {
+      "term": "Donald",
+      "category": "name",
+      "aliases": [
+        "donald",
+        "don"
+      ]
+    },
+    {
+      "term": "Douglas",
+      "category": "name",
+      "aliases": [
+        "douglas",
+        "doug"
+      ]
+    },
+    {
+      "term": "Dylan",
+      "category": "name",
+      "aliases": [
+        "dylan"
+      ]
+    },
+    {
+      "term": "Edward",
+      "category": "name",
+      "aliases": [
+        "edward",
+        "ed",
+        "eddie"
+      ]
+    },
+    {
+      "term": "Elizabeth",
+      "category": "name",
+      "aliases": [
+        "elizabeth",
+        "liz",
+        "beth"
+      ]
+    },
+    {
+      "term": "Emily",
+      "category": "name",
+      "aliases": [
+        "emily"
+      ]
+    },
+    {
+      "term": "Eric",
+      "category": "name",
+      "aliases": [
+        "eric"
+      ]
+    },
+    {
+      "term": "Ethan",
+      "category": "name",
+      "aliases": [
+        "ethan"
+      ]
+    },
+    {
+      "term": "Frank",
+      "category": "name",
+      "aliases": [
+        "frank"
+      ]
+    },
+    {
+      "term": "Gabriel",
+      "category": "name",
+      "aliases": [
+        "gabriel",
+        "gabe"
+      ]
+    },
+    {
+      "term": "Gary",
+      "category": "name",
+      "aliases": [
+        "gary"
+      ]
+    },
+    {
+      "term": "George",
+      "category": "name",
+      "aliases": [
+        "george"
+      ]
+    },
+    {
+      "term": "Gregory",
+      "category": "name",
+      "aliases": [
+        "gregory",
+        "greg"
+      ]
+    },
+    {
+      "term": "Harold",
+      "category": "name",
+      "aliases": [
+        "harold",
+        "harry"
+      ]
+    },
+    {
+      "term": "Henry",
+      "category": "name",
+      "aliases": [
+        "henry"
+      ]
+    },
+    {
+      "term": "Jack",
+      "category": "name",
+      "aliases": [
+        "jack"
+      ]
+    },
+    {
+      "term": "Jackson",
+      "category": "name",
+      "aliases": [
+        "jackson"
+      ]
+    },
+    {
+      "term": "Jacob",
+      "category": "name",
+      "aliases": [
+        "jacob",
+        "jake"
+      ]
+    },
+    {
+      "term": "James",
+      "category": "name",
+      "aliases": [
+        "james",
+        "jim",
+        "jimmy"
+      ]
+    },
+    {
+      "term": "Jason",
+      "category": "name",
+      "aliases": [
+        "jason"
+      ],
+      "conflicts": [
+        "JSON"
+      ]
+    },
+    {
+      "term": "Jeffrey",
+      "category": "name",
+      "aliases": [
+        "jeffrey",
+        "jeff"
+      ]
+    },
+    {
+      "term": "Jennifer",
+      "category": "name",
+      "aliases": [
+        "jennifer",
+        "jen"
+      ]
+    },
+    {
+      "term": "Jeremy",
+      "category": "name",
+      "aliases": [
+        "jeremy"
+      ]
+    },
+    {
+      "term": "Jerry",
+      "category": "name",
+      "aliases": [
+        "jerry"
+      ]
+    },
+    {
+      "term": "Jessica",
+      "category": "name",
+      "aliases": [
+        "jessica",
+        "jess"
+      ]
+    },
+    {
+      "term": "John",
+      "category": "name",
+      "aliases": [
+        "john",
+        "jon"
+      ]
+    },
+    {
+      "term": "Jonathan",
+      "category": "name",
+      "aliases": [
+        "jonathan"
+      ]
+    },
+    {
+      "term": "Jordan",
+      "category": "name",
+      "aliases": [
+        "jordan"
+      ]
+    },
+    {
+      "term": "Joseph",
+      "category": "name",
+      "aliases": [
+        "joseph",
+        "joe"
+      ]
+    },
+    {
+      "term": "Joshua",
+      "category": "name",
+      "aliases": [
+        "joshua",
+        "josh"
+      ]
+    },
+    {
+      "term": "Justin",
+      "category": "name",
+      "aliases": [
+        "justin"
+      ]
+    },
+    {
+      "term": "Karen",
+      "category": "name",
+      "aliases": [
+        "karen"
+      ]
+    },
+    {
+      "term": "Katherine",
+      "category": "name",
+      "aliases": [
+        "katherine",
+        "kate",
+        "katie"
+      ]
+    },
+    {
+      "term": "Keith",
+      "category": "name",
+      "aliases": [
+        "keith"
+      ]
+    },
+    {
+      "term": "Kenneth",
+      "category": "name",
+      "aliases": [
+        "kenneth",
+        "ken"
+      ]
+    },
+    {
+      "term": "Kevin",
+      "category": "name",
+      "aliases": [
+        "kevin"
+      ]
+    },
+    {
+      "term": "Kyle",
+      "category": "name",
+      "aliases": [
+        "kyle"
+      ]
+    },
+    {
+      "term": "Larry",
+      "category": "name",
+      "aliases": [
+        "larry"
+      ]
+    },
+    {
+      "term": "Laura",
+      "category": "name",
+      "aliases": [
+        "laura"
+      ]
+    },
+    {
+      "term": "Lauren",
+      "category": "name",
+      "aliases": [
+        "lauren"
+      ]
+    },
+    {
+      "term": "Lawrence",
+      "category": "name",
+      "aliases": [
+        "lawrence",
+        "larry"
+      ]
+    },
+    {
+      "term": "Lisa",
+      "category": "name",
+      "aliases": [
+        "lisa"
+      ]
+    },
+    {
+      "term": "Logan",
+      "category": "name",
+      "aliases": [
+        "logan"
+      ]
+    },
+    {
+      "term": "Louis",
+      "category": "name",
+      "aliases": [
+        "louis",
+        "lewis"
+      ]
+    },
+    {
+      "term": "Mark",
+      "category": "name",
+      "aliases": [
+        "mark"
+      ]
+    },
+    {
+      "term": "Mary",
+      "category": "name",
+      "aliases": [
+        "mary"
+      ]
+    },
+    {
+      "term": "Matthew",
+      "category": "name",
+      "aliases": [
+        "matthew",
+        "matt"
+      ]
+    },
+    {
+      "term": "Megan",
+      "category": "name",
+      "aliases": [
+        "megan"
+      ]
+    },
+    {
+      "term": "Michael",
+      "category": "name",
+      "aliases": [
+        "michael",
+        "mike"
+      ]
+    },
+    {
+      "term": "Michelle",
+      "category": "name",
+      "aliases": [
+        "michelle"
+      ]
+    },
+    {
+      "term": "Nancy",
+      "category": "name",
+      "aliases": [
+        "nancy"
+      ]
+    },
+    {
+      "term": "Nathan",
+      "category": "name",
+      "aliases": [
+        "nathan",
+        "nate"
+      ]
+    },
+    {
+      "term": "Nicholas",
+      "category": "name",
+      "aliases": [
+        "nicholas",
+        "nick"
+      ]
+    },
+    {
+      "term": "Nicole",
+      "category": "name",
+      "aliases": [
+        "nicole"
+      ]
+    },
+    {
+      "term": "Noah",
+      "category": "name",
+      "aliases": [
+        "noah"
+      ]
+    },
+    {
+      "term": "Patrick",
+      "category": "name",
+      "aliases": [
+        "patrick",
+        "pat"
+      ]
+    },
+    {
+      "term": "Paul",
+      "category": "name",
+      "aliases": [
+        "paul"
+      ]
+    },
+    {
+      "term": "Peter",
+      "category": "name",
+      "aliases": [
+        "peter",
+        "pete"
+      ]
+    },
+    {
+      "term": "Philip",
+      "category": "name",
+      "aliases": [
+        "philip",
+        "phil"
+      ]
+    },
+    {
+      "term": "Rachel",
+      "category": "name",
+      "aliases": [
+        "rachel"
+      ]
+    },
+    {
+      "term": "Raymond",
+      "category": "name",
+      "aliases": [
+        "raymond",
+        "ray"
+      ]
+    },
+    {
+      "term": "Rebecca",
+      "category": "name",
+      "aliases": [
+        "rebecca",
+        "becky"
+      ]
+    },
+    {
+      "term": "Richard",
+      "category": "name",
+      "aliases": [
+        "richard",
+        "rick",
+        "rich"
+      ]
+    },
+    {
+      "term": "Robert",
+      "category": "name",
+      "aliases": [
+        "robert",
+        "rob",
+        "bob",
+        "bobby"
+      ]
+    },
+    {
+      "term": "Roger",
+      "category": "name",
+      "aliases": [
+        "roger"
+      ]
+    },
+    {
+      "term": "Ronald",
+      "category": "name",
+      "aliases": [
+        "ronald",
+        "ron"
+      ]
+    },
+    {
+      "term": "Ryan",
+      "category": "name",
+      "aliases": [
+        "ryan"
+      ]
+    },
+    {
+      "term": "Samuel",
+      "category": "name",
+      "aliases": [
+        "samuel",
+        "sam"
+      ]
+    },
+    {
+      "term": "Sandra",
+      "category": "name",
+      "aliases": [
+        "sandra",
+        "sandy"
+      ]
+    },
+    {
+      "term": "Sarah",
+      "category": "name",
+      "aliases": [
+        "sarah",
+        "sara"
+      ]
+    },
+    {
+      "term": "Scott",
+      "category": "name",
+      "aliases": [
+        "scott"
+      ]
+    },
+    {
+      "term": "Sean",
+      "category": "name",
+      "aliases": [
+        "sean",
+        "shawn"
+      ]
+    },
+    {
+      "term": "Stephanie",
+      "category": "name",
+      "aliases": [
+        "stephanie",
+        "steph"
+      ]
+    },
+    {
+      "term": "Stephen",
+      "category": "name",
+      "aliases": [
+        "stephen",
+        "steve"
+      ]
+    },
+    {
+      "term": "Steven",
+      "category": "name",
+      "aliases": [
+        "steven",
+        "steve"
+      ]
+    },
+    {
+      "term": "Susan",
+      "category": "name",
+      "aliases": [
+        "susan",
+        "sue"
+      ]
+    },
+    {
+      "term": "Teresa",
+      "category": "name",
+      "aliases": [
+        "teresa"
+      ]
+    },
+    {
+      "term": "Thomas",
+      "category": "name",
+      "aliases": [
+        "thomas",
+        "tom",
+        "tommy"
+      ]
+    },
+    {
+      "term": "Timothy",
+      "category": "name",
+      "aliases": [
+        "timothy",
+        "tim"
+      ]
+    },
+    {
+      "term": "Tyler",
+      "category": "name",
+      "aliases": [
+        "tyler"
+      ]
+    },
+    {
+      "term": "Victoria",
+      "category": "name",
+      "aliases": [
+        "victoria",
+        "vicky"
+      ]
+    },
+    {
+      "term": "Vincent",
+      "category": "name",
+      "aliases": [
+        "vincent",
+        "vince"
+      ]
+    },
+    {
+      "term": "Walter",
+      "category": "name",
+      "aliases": [
+        "walter",
+        "walt"
+      ]
+    },
+    {
+      "term": "William",
+      "category": "name",
+      "aliases": [
+        "william",
+        "will",
+        "bill",
+        "billy"
+      ]
+    },
+    {
+      "term": "Zachary",
+      "category": "name",
+      "aliases": [
+        "zachary",
+        "zach"
+      ]
+    },
+    {
+      "term": "C++",
+      "category": "tech",
+      "aliases": [
+        "c plus plus",
+        "c plus",
+        "cpp",
+        "see plus plus"
+      ]
+    },
+    {
+      "term": "C#",
+      "category": "tech",
+      "aliases": [
+        "c sharp",
+        "c hashtag",
+        "csharp"
+      ]
+    },
+    {
+      "term": "HTML",
+      "category": "tech",
+      "aliases": [
+        "html",
+        "h t m l"
+      ]
+    },
+    {
+      "term": "CSS",
+      "category": "tech",
+      "aliases": [
+        "css",
+        "c s s"
+      ]
+    },
+    {
+      "term": "SQL",
+      "category": "tech",
+      "aliases": [
+        "sql",
+        "sequel",
+        "s q l"
+      ]
+    },
+    {
+      "term": "YAML",
+      "category": "tech",
+      "aliases": [
+        "yaml",
+        "yamel"
+      ]
+    },
+    {
+      "term": "XML",
+      "category": "tech",
+      "aliases": [
+        "xml",
+        "x m l"
+      ]
+    },
+    {
+      "term": "CSV",
+      "category": "tech",
+      "aliases": [
+        "csv",
+        "c s v"
+      ]
+    },
+    {
+      "term": "REST",
+      "category": "tech",
+      "aliases": [
+        "rest api",
+        "restful"
+      ]
+    },
+    {
+      "term": "GraphQL",
+      "category": "tech",
+      "aliases": [
+        "graphql",
+        "graph q l"
+      ]
+    },
+    {
+      "term": "Git",
+      "category": "tech",
+      "aliases": [
+        "git"
+      ]
+    },
+    {
+      "term": "GitLab",
+      "category": "tech",
+      "aliases": [
+        "gitlab",
+        "git lab"
+      ]
+    },
+    {
+      "term": "npm",
+      "category": "tech",
+      "aliases": [
+        "n p m",
+        "node package manager"
+      ]
+    },
+    {
+      "term": "Node.js",
+      "category": "tech",
+      "aliases": [
+        "node js",
+        "node",
+        "nodejs"
+      ]
+    },
+    {
+      "term": "React",
+      "category": "tech",
+      "aliases": [
+        "react"
+      ]
+    },
+    {
+      "term": "Vue",
+      "category": "tech",
+      "aliases": [
+        "vue",
+        "view js"
+      ]
+    },
+    {
+      "term": "Angular",
+      "category": "tech",
+      "aliases": [
+        "angular"
+      ]
+    },
+    {
+      "term": "Django",
+      "category": "tech",
+      "aliases": [
+        "django"
+      ]
+    },
+    {
+      "term": "Flask",
+      "category": "tech",
+      "aliases": [
+        "flask"
+      ]
+    },
+    {
+      "term": "FastAPI",
+      "category": "tech",
+      "aliases": [
+        "fast api",
+        "fastapi"
+      ]
+    },
+    {
+      "term": "Docker",
+      "category": "tech",
+      "aliases": [
+        "docker"
+      ]
+    },
+    {
+      "term": "Kubernetes",
+      "category": "tech",
+      "aliases": [
+        "kubernetes",
+        "k8s",
+        "kube"
+      ]
+    },
+    {
+      "term": "Linux",
+      "category": "tech",
+      "aliases": [
+        "linux"
+      ]
+    },
+    {
+      "term": "macOS",
+      "category": "tech",
+      "aliases": [
+        "mac os",
+        "macos",
+        "mack os"
+      ]
+    },
+    {
+      "term": "PySide6",
+      "category": "tech",
+      "aliases": [
+        "pyside",
+        "pie side",
+        "py side"
+      ]
+    },
+    {
+      "term": "Qt",
+      "category": "tech",
+      "aliases": [
+        "qt",
+        "q t"
+      ]
+    },
+    {
+      "term": "VS Code",
+      "category": "tech",
+      "aliases": [
+        "vs code",
+        "visual studio code"
+      ]
+    },
+    {
+      "term": "Cursor",
+      "category": "tech",
+      "aliases": [
+        "cursor ide"
+      ]
+    },
+    {
+      "term": "IDE",
+      "category": "tech",
+      "aliases": [
+        "i d e"
+      ]
+    },
+    {
+      "term": "CLI",
+      "category": "tech",
+      "aliases": [
+        "c l i",
+        "command line"
+      ]
+    },
+    {
+      "term": "SDK",
+      "category": "tech",
+      "aliases": [
+        "s d k"
+      ]
+    },
+    {
+      "term": "HTTP",
+      "category": "tech",
+      "aliases": [
+        "http",
+        "h t t p"
+      ]
+    },
+    {
+      "term": "HTTPS",
+      "category": "tech",
+      "aliases": [
+        "https",
+        "h t t p s"
+      ]
+    },
+    {
+      "term": "localhost",
+      "category": "tech",
+      "aliases": [
+        "local host"
+      ]
+    },
+    {
+      "term": "pip",
+      "category": "tech",
+      "aliases": [
+        "pip install"
+      ]
+    },
+    {
+      "term": "venv",
+      "category": "tech",
+      "aliases": [
+        "virtual env",
+        "virtual environment"
+      ]
+    },
+    {
+      "term": "conda",
+      "category": "tech",
+      "aliases": [
+        "conda"
+      ]
+    },
+    {
+      "term": "README",
+      "category": "tech",
+      "aliases": [
+        "read me",
+        "readme"
+      ]
+    },
+    {
+      "term": ".py",
+      "category": "tech",
+      "aliases": [
+        "dot py",
+        "pie file",
+        "python file"
+      ]
+    },
+    {
+      "term": ".html",
+      "category": "tech",
+      "aliases": [
+        "dot html",
+        "html file"
+      ]
+    },
+    {
+      "term": ".css",
+      "category": "tech",
+      "aliases": [
+        "dot css",
+        "css file"
+      ]
+    },
+    {
+      "term": ".js",
+      "category": "tech",
+      "aliases": [
+        "dot js",
+        "javascript file"
+      ]
+    },
+    {
+      "term": ".ts",
+      "category": "tech",
+      "aliases": [
+        "dot ts",
+        "typescript file"
+      ]
+    },
+    {
+      "term": ".json",
+      "category": "tech",
+      "aliases": [
+        "dot json",
+        "json file"
+      ]
+    },
+    {
+      "term": ".xml",
+      "category": "tech",
+      "aliases": [
+        "dot xml",
+        "xml file"
+      ]
+    },
+    {
+      "term": ".md",
+      "category": "tech",
+      "aliases": [
+        "dot md",
+        "markdown file"
+      ]
+    },
+    {
+      "term": ".yaml",
+      "category": "tech",
+      "aliases": [
+        "dot yaml",
+        "yaml file"
+      ]
+    },
+    {
+      "term": ".yml",
+      "category": "tech",
+      "aliases": [
+        "dot yml"
+      ]
+    },
+    {
+      "term": ".env",
+      "category": "tech",
+      "aliases": [
+        "dot env",
+        "env file"
+      ]
+    },
+    {
+      "term": ".exe",
+      "category": "tech",
+      "aliases": [
+        "dot exe"
+      ]
+    },
+    {
+      "term": ".dll",
+      "category": "tech",
+      "aliases": [
+        "dot dll"
+      ]
+    },
+    {
+      "term": ".sql",
+      "category": "tech",
+      "aliases": [
+        "dot sql",
+        "sql file"
+      ]
+    },
+    {
+      "term": ".csv",
+      "category": "tech",
+      "aliases": [
+        "dot csv",
+        "csv file"
+      ]
+    },
+    {
+      "term": ".txt",
+      "category": "tech",
+      "aliases": [
+        "dot txt",
+        "text file"
+      ]
+    },
+    {
+      "term": "PostgreSQL",
+      "category": "tech",
+      "aliases": [
+        "postgresql",
+        "postgres",
+        "post gres"
+      ]
+    },
+    {
+      "term": "MongoDB",
+      "category": "tech",
+      "aliases": [
+        "mongodb",
+        "mongo db"
+      ]
+    },
+    {
+      "term": "Redis",
+      "category": "tech",
+      "aliases": [
+        "redis"
+      ]
+    },
+    {
+      "term": "async",
+      "category": "tech",
+      "aliases": [
+        "a sync",
+        "asynchronous"
+      ]
+    },
+    {
+      "term": "await",
+      "category": "tech",
+      "aliases": [
+        "a wait"
+      ]
+    },
+    {
+      "term": "kwargs",
+      "category": "tech",
+      "aliases": [
+        "k w args",
+        "keyword args"
+      ]
+    },
+    {
+      "term": "args",
+      "category": "tech",
+      "aliases": [
+        "a r g s"
+      ]
+    },
+    {
+      "term": "bool",
+      "category": "tech",
+      "aliases": [
+        "boolean",
+        "bool"
+      ]
+    },
+    {
+      "term": "null",
+      "category": "tech",
+      "aliases": [
+        "none",
+        "nil"
+      ]
+    },
+    {
+      "term": "regex",
+      "category": "tech",
+      "aliases": [
+        "regular expression",
+        "reg ex"
+      ]
+    },
+    {
+      "term": "stdout",
+      "category": "tech",
+      "aliases": [
+        "standard out",
+        "std out"
+      ]
+    },
+    {
+      "term": "stderr",
+      "category": "tech",
+      "aliases": [
+        "standard error",
+        "std err"
+      ]
+    },
+    {
+      "term": "stdin",
+      "category": "tech",
+      "aliases": [
+        "standard in",
+        "std in"
+      ]
     }
   ]
 }

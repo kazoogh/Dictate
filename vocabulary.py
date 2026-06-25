@@ -37,6 +37,16 @@ _NAME_CONTEXT = re.compile(
     re.IGNORECASE,
 )
 
+_C_PLUS_CONTEXT = re.compile(
+    r"\b(?:c\s+plus\s+plus|see\s+plus\s+plus|cplusplus|cpp)\b",
+    re.IGNORECASE,
+)
+
+_DEPRECATED_ALIASES: dict[str, list[str]] = {
+    "exe": ["executable file"],
+    "c++": ["c plus"],
+}
+
 _BUNDLED_VOCAB_FILES = (
     "vocabulary.default.json",
     "vocabulary.names.json",
@@ -119,6 +129,16 @@ def merge_bundled_terms_into_user_file(app_dir: Path) -> None:
         if entry.get("conflicts") and not existing.get("conflicts"):
             existing["conflicts"] = entry["conflicts"]
             changed = True
+        deprecated = _DEPRECATED_ALIASES.get(key, [])
+        if deprecated and existing.get("aliases"):
+            before = list(existing["aliases"])
+            existing["aliases"] = [
+                a for a in existing["aliases"] if _normalize_phrase(str(a)) not in {
+                    _normalize_phrase(d) for d in deprecated
+                }
+            ]
+            if existing["aliases"] != before:
+                changed = True
         bundled_aliases = {_normalize_phrase(str(a)) for a in entry.get("aliases", [])}
         aliases = existing.setdefault("aliases", [])
         existing_aliases = {_normalize_phrase(str(a)) for a in aliases}
@@ -341,6 +361,54 @@ class VocabularyStore:
                 return None
         return best
 
+    def _score_fuzzy_match(self, phrase: str, pattern: str) -> int:
+        if not phrase or not pattern:
+            return 0
+        score = int(fuzz.ratio(phrase, pattern))
+        phrase_words = phrase.split()
+        pattern_words = pattern.split()
+        if len(pattern_words) != len(phrase_words):
+            score -= 12 * abs(len(pattern_words) - len(phrase_words))
+        if len(phrase) <= 1:
+            return score if phrase == pattern else 0
+        if len(phrase) == 2 and score < 95:
+            return 0
+        if phrase in {"c", "see"} and pattern in {
+            "c++",
+            "cpp",
+            "c#",
+            "c plus",
+            "c plus plus",
+        }:
+            return 0
+        if phrase in {"txt", "text"} and "exe" in pattern:
+            return 0
+        if phrase == "text file" and "executable" in pattern:
+            return 0
+        if phrase == "faster whisper" and pattern == "faster wisper":
+            return score
+        if score < self.fuzzy_threshold:
+            return 0
+        return score
+
+    def _choose_c_family(
+        self,
+        phrase: str,
+        candidates: list[tuple[str, int]],
+        context: str,
+    ) -> str | None:
+        labels = {canonical for canonical, _ in candidates}
+        if not labels.intersection({"C", "C++", "C#"}):
+            return None
+        if _C_PLUS_CONTEXT.search(context) or phrase in {"c plus plus", "cpp", "see plus plus"}:
+            return "C++" if "C++" in labels else None
+        if phrase in {"c", "see"} and "plus" not in context.lower():
+            if "C" in labels:
+                return "C"
+        if phrase in {"c", "see"} and "C" in labels and "C++" not in labels:
+            return "C"
+        return None
+
     def _apply_fuzzy_pass(self, text: str) -> str:
         if not fuzz or not self._fuzzy_patterns:
             return text
@@ -366,8 +434,8 @@ class VocabularyStore:
                 for pattern, canonical, _category in self._fuzzy_patterns:
                     if abs(len(pattern.split()) - n) > 1 and n > 1:
                         continue
-                    score = int(fuzz.ratio(phrase, pattern))
-                    if score >= self.fuzzy_threshold:
+                    score = self._score_fuzzy_match(phrase, pattern)
+                    if score > 0:
                         candidates.append((canonical, score))
 
                 if not candidates:
@@ -379,7 +447,11 @@ class VocabularyStore:
                 first = matches[i]
                 last = matches[i + n - 1]
                 context = self._context_window(text, first.start(), last.end())
-                chosen = self._choose_with_context(phrase, close, context)
+                c_family = self._choose_c_family(phrase, close, context)
+                if c_family:
+                    chosen = c_family
+                else:
+                    chosen = self._choose_with_context(phrase, close, context)
                 if not chosen:
                     continue
 

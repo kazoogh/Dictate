@@ -19,6 +19,11 @@ CASES = [
     ("john and james need to review this", "John"),
     ("write a python script for the api", "Python"),
     ("save it as dot py", ".py"),
+    ("talk about C and using C for the main codebase", "C"),
+    ("we use c plus plus for templates", "C++"),
+    ("building and packaging the txt", ".txt"),
+    ("building and packaging the text file", ".txt"),
+    ("things like faster whisper and onnx", "faster whisper"),
 ]
 
 AMBIGUOUS = [
@@ -55,6 +60,13 @@ def main() -> None:
             failed += 1
         else:
             print(f"OK: neutral jason -> {neutral!r}")
+
+        c_only = store.correct("using c for the main code base")
+        if "C++" in c_only:
+            print(f"FAIL: bare C became C++ -> {c_only!r}")
+            failed += 1
+        else:
+            print(f"OK: bare C kept -> {c_only!r}")
 
     sys.exit(failed)
 
