@@ -7,7 +7,7 @@ from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Callable
 
 import pyperclip
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, QSize
 from PySide6.QtGui import QAction, QFont, QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
@@ -51,6 +51,57 @@ STATUS_BG = "#1C1C1E"
 STATUS_FG = "#FFFFFF"
 FOOTER_BG = "#F4F4F5"
 
+GLOBAL_STYLE = f"""
+QMainWindow, QWidget {{
+    background: {BG};
+    color: {TEXT};
+    font-family: "Segoe UI", sans-serif;
+}}
+QScrollArea {{
+    border: none;
+    background: transparent;
+}}
+QScrollBar:vertical {{
+    width: 8px;
+    background: transparent;
+}}
+QScrollBar::handle:vertical {{
+    background: #D4D4D8;
+    border-radius: 4px;
+    min-height: 24px;
+}}
+QPushButton {{
+    border: none;
+}}
+QLineEdit, QComboBox {{
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: white;
+}}
+"""
+
+
+def _icon_label(name: str, size: int = 16, color: str = ACCENT) -> QLabel:
+    label = QLabel()
+    label.setPixmap(_pil_icon(render_lucide(name, size, color=color), size).pixmap(size, size))
+    label.setFixedSize(size, size)
+    return label
+
+
+def _icon_button(name: str, tooltip: str = "", size: int = 28) -> QPushButton:
+    btn = QPushButton()
+    btn.setFixedSize(size, size)
+    btn.setIcon(_pil_icon(render_lucide(name, 14, color=MUTED)))
+    btn.setIconSize(QSize(14, 14))
+    btn.setToolTip(tooltip)
+    btn.setCursor(Qt.CursorShape.PointingHandCursor)
+    btn.setStyleSheet(
+        "QPushButton { background: transparent; border-radius: 8px; }"
+        "QPushButton:hover { background: #E4E4E7; }"
+    )
+    return btn
+
 
 def format_hotkey_display(hotkey: str) -> str:
     parts = hotkey.replace("<", "").replace(">", "").split("+")
@@ -91,12 +142,15 @@ def _pil_icon(pil_image, size: int | None = None) -> QIcon:
     return QIcon(QPixmap.fromImage(qimg))
 
 
-def _card() -> QFrame:
+def _card(padding: int = 0) -> QFrame:
     frame = QFrame()
     frame.setObjectName("card")
     frame.setStyleSheet(
         f"#card {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 12px; }}"
     )
+    if padding:
+        lay = QVBoxLayout(frame)
+        lay.setContentsMargins(padding, padding, padding, padding)
     return frame
 
 
@@ -280,23 +334,34 @@ class DashboardWindow(QMainWindow):
         self.setMinimumSize(1000, 700)
         self.resize(1140, 780)
         self.setWindowIcon(_pil_icon(render_logo(48)))
-        self.setStyleSheet(f"QMainWindow {{ background: {BG}; }} QLabel {{ color: {TEXT}; }}")
+        self.setStyleSheet(GLOBAL_STYLE)
 
         central = QWidget()
         self.setCentralWidget(central)
         root = QVBoxLayout(central)
-        root.setContentsMargins(32, 28, 32, 28)
+        root.setContentsMargins(32, 28, 32, 24)
+        root.setSpacing(20)
 
         header = QHBoxLayout()
         brand = QHBoxLayout()
+        logo_box = QFrame()
+        logo_box.setFixedSize(48, 48)
+        logo_box.setStyleSheet(
+            f"background: {ACCENT}; border-radius: 12px;"
+        )
+        lb = QVBoxLayout(logo_box)
+        lb.setContentsMargins(0, 0, 0, 0)
         logo = QLabel()
-        logo.setPixmap(_pil_icon(render_logo(48)).pixmap(48, 48))
-        brand.addWidget(logo)
+        logo.setPixmap(_pil_icon(render_lucide("audio-lines", 24, color="#EFF6FF")).pixmap(24, 24))
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lb.addWidget(logo)
+        brand.addWidget(logo_box)
         titles = QVBoxLayout()
+        titles.setSpacing(2)
         self._title = QLabel("Dictate")
-        self._title.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
+        self._title.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
         self._subtitle = QLabel("Local voice typing assistant")
-        self._subtitle.setStyleSheet(f"color: {MUTED};")
+        self._subtitle.setStyleSheet(f"color: {MUTED}; font-size: 13px;")
         titles.addWidget(self._title)
         titles.addWidget(self._subtitle)
         brand.addLayout(titles)
@@ -304,23 +369,38 @@ class DashboardWindow(QMainWindow):
         header.addStretch()
         self._hotkey_pill = QLabel()
         self._hotkey_pill.setStyleSheet(
-            f"background: {ACCENT_LIGHT}; color: {ACCENT}; padding: 8px 14px; border-radius: 8px; font-weight: 600;"
+            f"background: {ACCENT_LIGHT}; color: {ACCENT}; padding: 8px 16px; "
+            "border-radius: 20px; font-weight: 600; font-size: 13px;"
         )
         header.addWidget(self._hotkey_pill)
-        settings_btn = QPushButton("Settings")
+        settings_btn = QPushButton()
+        settings_btn.setFixedSize(40, 40)
+        settings_btn.setIcon(_pil_icon(render_lucide("settings", 20, color=TEXT)))
+        settings_btn.setStyleSheet(
+            f"QPushButton {{ border: 1px solid {BORDER}; border-radius: 12px; background: white; }}"
+            "QPushButton:hover { background: #F4F4F5; }"
+        )
+        settings_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         settings_btn.clicked.connect(self._open_settings)
         header.addWidget(settings_btn)
         root.addLayout(header)
 
         body = QHBoxLayout()
+        body.setSpacing(20)
         nav = QVBoxLayout()
-        nav.addWidget(QLabel("Modes"))
+        nav.setSpacing(6)
+        modes_lbl = QLabel("Modes")
+        modes_lbl.setStyleSheet(f"color: {MUTED}; font-size: 12px; font-weight: 600;")
+        nav.addWidget(modes_lbl)
         self._nav_quick = QPushButton("Quick Dictate")
         self._nav_clinical = QPushButton("Clinical Session")
         for btn in (self._nav_quick, self._nav_clinical):
             btn.setCheckable(True)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
             btn.setStyleSheet(
-                f"QPushButton {{ text-align: left; padding: 12px; border-radius: 8px; background: {ENTRY_BG}; }}"
+                f"QPushButton {{ text-align: left; padding: 10px 14px; border-radius: 10px; "
+                f"background: transparent; color: {TEXT}; font-size: 13px; }}"
+                f"QPushButton:hover {{ background: {ENTRY_BG}; }}"
                 f"QPushButton:checked {{ background: {ACCENT_LIGHT}; color: {ACCENT}; font-weight: 600; }}"
             )
         self._nav_quick.clicked.connect(lambda: self._set_mode("quick"))
@@ -328,7 +408,10 @@ class DashboardWindow(QMainWindow):
         nav.addWidget(self._nav_quick)
         nav.addWidget(self._nav_clinical)
         nav.addStretch()
-        body.addLayout(nav)
+        nav_wrap = QWidget()
+        nav_wrap.setFixedWidth(168)
+        nav_wrap.setLayout(nav)
+        body.addWidget(nav_wrap)
 
         self._stack = QStackedWidget()
         self._home = self._build_home()
@@ -351,10 +434,16 @@ class DashboardWindow(QMainWindow):
         root.addLayout(body, 1)
 
         footer = QFrame()
-        footer.setStyleSheet(f"background: {FOOTER_BG}; border: 1px solid {BORDER}; border-radius: 10px;")
+        footer.setStyleSheet(
+            f"background: {FOOTER_BG}; border: 1px solid {BORDER}; border-radius: 12px;"
+        )
         foot = QHBoxLayout(footer)
+        foot.setContentsMargins(16, 10, 16, 10)
+        self._foot_dot = QLabel("●")
+        self._foot_dot.setStyleSheet(f"color: {ACCENT}; font-size: 10px;")
         self._foot_status = QLabel("Loading…")
         self._foot_status.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
+        foot.addWidget(self._foot_dot)
         foot.addWidget(self._foot_status)
         foot.addStretch()
         self._foot_meta = QLabel("")
@@ -399,59 +488,144 @@ class DashboardWindow(QMainWindow):
     def _build_home(self) -> QWidget:
         page = QWidget()
         layout = QHBoxLayout(page)
+        layout.setSpacing(20)
+        layout.setContentsMargins(0, 0, 0, 0)
         left = QVBoxLayout()
+        left.setSpacing(12)
+
         self._record_banner = QFrame()
-        self._record_banner.setStyleSheet(f"background: {RECORD_BG}; border-left: 4px solid {RED}; border-radius: 8px;")
-        rb = QVBoxLayout(self._record_banner)
-        rb.addWidget(QLabel("Recording…  Press your hotkey again to stop."))
+        self._record_banner.setStyleSheet(
+            f"background: {RECORD_BG}; border-left: 4px solid {RED}; border-radius: 12px;"
+        )
+        rb = QHBoxLayout(self._record_banner)
+        rb.setContentsMargins(16, 14, 16, 14)
+        dot = QLabel("●")
+        dot.setStyleSheet(f"color: {RED}; font-size: 18px;")
+        rb.addWidget(dot)
+        rb_text = QVBoxLayout()
+        rb_title = QLabel("Recording…")
+        rb_title.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
+        rb_sub = QLabel("Press your hotkey again to stop.")
+        rb_sub.setStyleSheet(f"color: {MUTED}; font-size: 12px;")
+        rb_text.addWidget(rb_title)
+        rb_text.addWidget(rb_sub)
+        rb.addLayout(rb_text, 1)
         self._record_banner.hide()
         left.addWidget(self._record_banner)
 
-        list_card = _card()
+        list_card = _card(20)
         lc = QVBoxLayout(list_card)
+        lc.setSpacing(12)
         head = QHBoxLayout()
-        head.addWidget(QLabel("Transcriptions"))
-        self._count_badge = QLabel("0 items")
+        head.addWidget(_icon_label("file-text", 18, MUTED))
+        title = QLabel("Transcriptions")
+        title.setFont(QFont("Segoe UI", 13, QFont.Weight.DemiBold))
+        head.addWidget(title)
         head.addStretch()
+        self._count_badge = QLabel("0 items")
+        self._count_badge.setStyleSheet(
+            f"background: {ENTRY_BG}; color: {TEXT}; padding: 4px 10px; "
+            "border-radius: 12px; font-size: 11px; font-weight: 600;"
+        )
         head.addWidget(self._count_badge)
         lc.addLayout(head)
-        self._history_area = QVBoxLayout()
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         hist_body = QWidget()
+        self._history_area = QVBoxLayout(hist_body)
+        self._history_area.setSpacing(10)
+        self._history_area.setContentsMargins(0, 0, 4, 0)
         hist_body.setLayout(self._history_area)
         scroll.setWidget(hist_body)
-        lc.addWidget(scroll)
+        lc.addWidget(scroll, 1)
         left.addWidget(list_card, 1)
         layout.addLayout(left, 2)
 
         right = QVBoxLayout()
+        right.setSpacing(12)
         grid = QGridLayout()
+        grid.setSpacing(12)
         self._stat_labels: dict[str, QLabel] = {}
-        for i, (key, title) in enumerate(
+        stat_icons = {"time": "clock", "words": "type", "sessions": "mic", "wpm": "gauge"}
+        for i, (key, title_text) in enumerate(
             [("time", "Total Time"), ("words", "Words"), ("sessions", "Sessions"), ("wpm", "Avg WPM")]
         ):
-            card = _card()
+            card = _card(14)
             cv = QVBoxLayout(card)
-            cv.addWidget(QLabel(title))
+            cv.setSpacing(6)
+            row = QHBoxLayout()
+            row.addWidget(_icon_label(stat_icons[key], 14, ACCENT))
+            lbl = QLabel(title_text)
+            lbl.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
+            row.addWidget(lbl)
+            row.addStretch()
+            cv.addLayout(row)
             val = QLabel("0")
-            val.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+            val.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
             self._stat_labels[key] = val
             cv.addWidget(val)
             grid.addWidget(card, i // 2, i % 2)
         right.addLayout(grid)
 
-        listen_card = _card()
-        lv = QVBoxLayout(listen_card)
+        self._local_card = _card(18)
+        lv = QVBoxLayout(self._local_card)
+        lv.setSpacing(10)
+        local_head = QHBoxLayout()
+        shield_box = QFrame()
+        shield_box.setFixedSize(40, 40)
+        shield_box.setStyleSheet(f"background: {ACCENT_LIGHT}; border-radius: 10px;")
+        sb = QVBoxLayout(shield_box)
+        sb.setContentsMargins(0, 0, 0, 0)
+        sh = QLabel()
+        sh.setPixmap(_pil_icon(render_lucide("shield-check", 20, color=ACCENT)).pixmap(20, 20))
+        sh.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        sb.addWidget(sh)
+        local_head.addWidget(shield_box)
+        local_titles = QVBoxLayout()
+        local_titles.setSpacing(0)
+        lt = QLabel("Local Mode")
+        lt.setFont(QFont("Segoe UI", 11, QFont.Weight.DemiBold))
+        ls = QLabel("On-device processing")
+        ls.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
+        local_titles.addWidget(lt)
+        local_titles.addWidget(ls)
+        local_head.addLayout(local_titles)
+        lv.addLayout(local_head)
+        local_desc = QLabel("All transcription happens on your machine. No audio ever leaves your device.")
+        local_desc.setWordWrap(True)
+        local_desc.setStyleSheet(f"color: {MUTED}; font-size: 12px; line-height: 1.4;")
+        lv.addWidget(local_desc)
+        offline = QFrame()
+        offline.setStyleSheet(f"background: {ACCENT_LIGHT}; border-radius: 8px;")
+        off_l = QHBoxLayout(offline)
+        off_l.setContentsMargins(10, 6, 10, 6)
+        off_l.addWidget(_icon_label("wifi", 14, ACCENT))
+        off_txt = QLabel("No internet required")
+        off_txt.setStyleSheet(f"color: {ACCENT}; font-size: 11px; font-weight: 600;")
+        off_l.addWidget(off_txt)
+        off_l.addStretch()
+        lv.addWidget(offline)
+        right.addWidget(self._local_card)
+
+        self._status_card = _card(18)
+        sv = QVBoxLayout(self._status_card)
+        sv.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._listen_icon = QLabel()
+        self._listen_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._listen_icon.setFixedHeight(72)
+        sv.addWidget(self._listen_icon)
         self._listen_title = QLabel("Ready")
-        self._listen_title.setFont(QFont("Segoe UI", 11, QFont.Weight.Bold))
+        self._listen_title.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
+        self._listen_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._listen_sub = QLabel("Press your hotkey to start dictating.")
-        self._listen_sub.setStyleSheet(f"color: {MUTED};")
+        self._listen_sub.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
         self._listen_sub.setWordWrap(True)
-        lv.addWidget(self._listen_title, alignment=Qt.AlignmentFlag.AlignCenter)
-        lv.addWidget(self._listen_sub, alignment=Qt.AlignmentFlag.AlignCenter)
-        right.addWidget(listen_card, 1)
+        self._listen_sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        sv.addWidget(self._listen_title)
+        sv.addWidget(self._listen_sub)
+        right.addWidget(self._status_card, 1)
         layout.addLayout(right, 1)
         return page
 
@@ -483,48 +657,88 @@ class DashboardWindow(QMainWindow):
         if self._state == "recording":
             self._hotkey_pill.setText(f"Press {hk} to Stop")
             self._hotkey_pill.setStyleSheet(
-                f"background: #FEF2F2; color: {RED_TEXT}; padding: 8px 14px; border-radius: 8px; font-weight: 600;"
+                f"background: #FEF2F2; color: {RED_TEXT}; padding: 8px 16px; "
+                "border-radius: 20px; font-weight: 600; font-size: 13px; border: 1px solid #FECACA;"
             )
         else:
             self._hotkey_pill.setText(f"Press {hk}")
             self._hotkey_pill.setStyleSheet(
-                f"background: {ACCENT_LIGHT}; color: {ACCENT}; padding: 8px 14px; border-radius: 8px; font-weight: 600;"
+                f"background: {ACCENT_LIGHT}; color: {ACCENT}; padding: 8px 16px; "
+                "border-radius: 20px; font-weight: 600; font-size: 13px;"
             )
+
+    def refresh_footer(self):
+        self._update_footer_meta()
 
     def _update_footer_meta(self):
         model = self.app.config.get("model_size", "base")
         hk = format_hotkey_display(self.app.config["hotkey"])
         chk = format_hotkey_display(self.app.config.get("clinical_hotkey", "<ctrl>+<alt>+r"))
-        native = " · Native shell" if self.app.native.available else ""
-        if self._mode == "clinical":
-            self._foot_meta.setText(f"Model: {model} · Transcribe: Local · Clinical stop: {chk}{native}")
+        backend = getattr(self.app, "hotkey_backend", "none")
+        if backend == "native":
+            shell = " · Native shell"
+        elif backend == "pynput":
+            shell = " · Python hotkeys"
+        elif self.app.native.available:
+            shell = " · Native (paste/audio)"
         else:
-            self._foot_meta.setText(f"Model: {model} · Offline · Hotkey: {hk}{native}")
+            shell = ""
+        if self._mode == "clinical":
+            self._foot_meta.setText(f"Model: {model} · Transcribe: Local · Clinical stop: {chk}{shell}")
+        else:
+            self._foot_meta.setText(f"Model: {model} · Offline · Hotkey: {hk}{shell}")
 
     def set_app_state(self, state: str):
         self._state = state
         if state == "recording":
             self._record_banner.show()
+            self._local_card.hide()
+            mic = _pil_icon(render_lucide("mic", 28, color="white"))
+            self._listen_icon.setPixmap(mic.pixmap(56, 56))
+            self._listen_icon.setStyleSheet(
+                f"background: {RED}; border-radius: 28px; padding: 14px;"
+            )
         else:
             self._record_banner.hide()
+            self._local_card.show()
+            self._listen_icon.setStyleSheet("background: transparent;")
+            if state in ("working", "loading"):
+                self._listen_icon.setPixmap(
+                    _pil_icon(render_lucide("gauge", 32, color=ACCENT)).pixmap(48, 48)
+                )
+            else:
+                self._listen_icon.setPixmap(
+                    _pil_icon(render_lucide("mic", 28, color=ACCENT)).pixmap(48, 48)
+                )
         self._update_hotkey_pill()
         self._update_footer_meta()
+        dot_color = {
+            "recording": RED,
+            "working": WARNING,
+            "loading": WARNING,
+            "error": RED,
+        }.get(state, ACCENT)
+        self._foot_dot.setStyleSheet(f"color: {dot_color}; font-size: 10px;")
         if state == "recording":
             self._listen_title.setText("Listening")
             self._listen_sub.setText("Speak naturally — text appears where your cursor is.")
             self._foot_status.setText("Recording…")
+            self._foot_status.setStyleSheet(f"color: {RED_TEXT};")
         elif state == "working":
             self._listen_title.setText("Transcribing…")
             self._listen_sub.setText("Processing your speech locally.")
             self._foot_status.setText("Transcribing…")
+            self._foot_status.setStyleSheet(f"color: {TEXT};")
         elif state == "loading":
             self._listen_title.setText("Loading model…")
-            self._listen_sub.setText("")
+            self._listen_sub.setText("Downloading Whisper weights on first run.")
             self._foot_status.setText("Loading…")
+            self._foot_status.setStyleSheet(f"color: {TEXT};")
         else:
             self._listen_title.setText("Ready")
             self._listen_sub.setText("Press your hotkey to start dictating.")
             self._foot_status.setText("Ready")
+            self._foot_status.setStyleSheet(f"color: {TEXT};")
 
     def set_status(self, message: str, auto_clear_ms: int | None = None, state: str = "idle"):
         self.set_app_state(state)
@@ -555,22 +769,27 @@ class DashboardWindow(QMainWindow):
 
     def _history_row(self, entry: dict) -> QWidget:
         row = QFrame()
-        row.setStyleSheet(f"background: {ENTRY_BG}; border: 1px solid {BORDER}; border-radius: 10px;")
+        row.setStyleSheet(
+            f"background: rgba(244,244,245,0.85); border: 1px solid {BORDER}; border-radius: 12px;"
+        )
         layout = QVBoxLayout(row)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(8)
         top = QHBoxLayout()
-        top.addWidget(QLabel(format_entry_timestamp(entry["timestamp"])))
+        ts = QLabel(format_entry_timestamp(entry["timestamp"]))
+        ts.setStyleSheet(f"color: {MUTED}; font-size: 11px; font-weight: 600;")
+        top.addWidget(ts)
         top.addStretch()
-        copy_btn = QPushButton("Copy")
-        copy_btn.setFlat(True)
+        copy_btn = _icon_button("copy", "Copy")
         copy_btn.clicked.connect(lambda: pyperclip.copy(entry["text"]))
-        del_btn = QPushButton("Delete")
-        del_btn.setFlat(True)
+        del_btn = _icon_button("trash-2", "Delete")
         del_btn.clicked.connect(lambda: self._delete_entry(entry["id"]))
         top.addWidget(copy_btn)
         top.addWidget(del_btn)
         layout.addLayout(top)
         text = QLabel(entry["text"])
         text.setWordWrap(True)
+        text.setStyleSheet("font-size: 13px; line-height: 1.45;")
         layout.addWidget(text)
         return row
 

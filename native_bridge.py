@@ -14,6 +14,7 @@ MOD_ALT = 0x0001
 MOD_CONTROL = 0x0002
 MOD_SHIFT = 0x0004
 MOD_WIN = 0x0008
+MOD_NOREPEAT = 0x4000
 
 VK_SPECIAL = {
     "space": 0x20,
@@ -82,6 +83,7 @@ class NativeShell:
     def __init__(self, app_dir: Path):
         self.app_dir = app_dir
         self.available = False
+        self.hotkeys_registered = False
         self._lib = None
         self._cb_ref = None
         self._wav_path: str | None = None
@@ -119,6 +121,7 @@ class NativeShell:
         if not self._lib:
             return False
         mods, vk = parse_hotkey(spec)
+        mods |= MOD_NOREPEAT
         return bool(self._lib.dictate_register_hotkey(mods, vk, hotkey_id))
 
     def unregister_hotkey(self, hotkey_id: int) -> None:

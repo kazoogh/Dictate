@@ -6,6 +6,8 @@ import sys
 import tempfile
 import threading
 import time
+
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 from ctypes import wintypes
 from datetime import datetime
 from pathlib import Path
@@ -16,7 +18,7 @@ import pyautogui
 import pyperclip
 import sounddevice as sd
 from pynput import keyboard
-from PySide6.QtCore import QObject, QTimer, Signal
+from PySide6.QtCore import QObject, Qt, QTimer, Signal
 from PySide6.QtWidgets import QApplication, QMessageBox
 from scipy.io import wavfile
 
@@ -178,7 +180,7 @@ class UiInvoker(QObject):
 
     def __init__(self):
         super().__init__()
-        self.invoke.connect(self._dispatch)
+        self.invoke.connect(self._dispatch, Qt.ConnectionType.QueuedConnection)
 
     def _dispatch(self, fn):
         try:
@@ -409,10 +411,14 @@ class DictationApp:
         self._hotkey_listener = None
         self._recording_started_at: float | None = None
         self._hotkey_emitter = HotkeyEmitter()
-        self._hotkey_emitter.pressed.connect(self._on_native_hotkey)
+        self._hotkey_emitter.pressed.connect(
+            self._on_native_hotkey, Qt.ConnectionType.QueuedConnection
+        )
         self._ui_invoker = UiInvoker()
+        self._alive = True
 
         self.native = NativeShell(get_app_dir())
+        self.hotkey_backend = "none"
         self.history = HistoryStore(max_entries=config.get("max_history_entries", 500))
         self.vocabulary = VocabularyStore(
             get_app_dir(),
@@ -448,7 +454,8 @@ class DictationApp:
         self._schedule_clinical_cleanup()
 
     def _ui(self, fn):
-        self._ui_invoker.invoke.emit(fn)
+        if self._alive:
+            self._ui_invoker.invoke.emit(fn)
 
     def _clinical_updated(self):
         self._ui(self.dashboard.refresh_clinical)
@@ -461,6 +468,9 @@ class DictationApp:
         self._schedule_clinical_cleanup()
 
     def _notify(self, message: str, state: str = "idle", auto_hide_ms: int | None = None):
+        self._ui(lambda: self._apply_notify(message, state, auto_hide_ms))
+
+    def _apply_notify(self, message: str, state: str = "idle", auto_hide_ms: int | None = None):
         persistent = state in StatusOverlay.PERSISTENT_STATES
         clear = None if persistent else auto_hide_ms
         self.dashboard.set_status(message, auto_clear_ms=clear, state=state)
@@ -481,25 +491,19 @@ class DictationApp:
             if cleanup:
                 self.transcript_cleaner.preload_punctuation()
             self.transcriber.load_model()
-            if cleanup:
-                self._ui(
-                    lambda: self.status_overlay.update_status(
-                        "Loading punctuation model…", state="loading"
-                    )
-                )
-                self.transcript_cleaner.wait_for_punctuation(timeout=120)
             with self._lock:
                 self.state = "idle"
             self._ui(lambda: self.dashboard.set_app_state("idle"))
-            if cleanup and not self.transcript_cleaner.punctuation_available():
-                err = self.transcript_cleaner.punctuation_error() or "unknown error"
-                self._notify(
-                    f"Ready (punctuation unavailable: {err[:40]})",
-                    state="idle",
-                    auto_hide_ms=5000,
-                )
-            else:
-                self._notify("Ready", state="idle", auto_hide_ms=2000)
+            self._notify("Ready", state="idle", auto_hide_ms=2000)
+            if cleanup:
+                self.transcript_cleaner.wait_for_punctuation(timeout=120)
+                if not self.transcript_cleaner.punctuation_available():
+                    err = self.transcript_cleaner.punctuation_error() or "unknown error"
+                    self._notify(
+                        f"Punctuation unavailable: {err[:40]}",
+                        state="idle",
+                        auto_hide_ms=5000,
+                    )
         except Exception as exc:
             with self._lock:
                 self.state = "error"
@@ -537,10 +541,13 @@ class DictationApp:
         self._ui(lambda: self.dashboard.set_app_state(self.state))
 
     def _on_native_hotkey(self, hotkey_id: int):
+        self._ui(lambda: self._dispatch_hotkey(hotkey_id))
+
+    def _dispatch_hotkey(self, hotkey_id: int):
         if hotkey_id == NativeShell.HOTKEY_QUICK:
-            self.on_quick_hotkey()
+            self._handle_quick_hotkey()
         elif hotkey_id == NativeShell.HOTKEY_CLINICAL:
-            self.on_clinical_hotkey()
+            self._handle_clinical_hotkey()
 
     def _reload_hotkey(self):
         if self._hotkey_listener is not None:
@@ -554,14 +561,34 @@ class DictationApp:
     def _setup_hotkey(self):
         quick = self.config["hotkey"]
         clinical = self.config.get("clinical_hotkey", "<ctrl>+<alt>+r")
+        self.hotkey_backend = "none"
+        self.native.hotkeys_registered = False
+
         if self.native.available:
             global _hotkey_target
             _hotkey_target = self
             self.native.set_hotkey_callback(_native_hotkey_trampoline)
-            self.native.register_hotkey(quick, NativeShell.HOTKEY_QUICK)
+            quick_ok = self.native.register_hotkey(quick, NativeShell.HOTKEY_QUICK)
+            clinical_ok = True
             if clinical != quick:
-                self.native.register_hotkey(clinical, NativeShell.HOTKEY_CLINICAL)
-            return
+                clinical_ok = self.native.register_hotkey(clinical, NativeShell.HOTKEY_CLINICAL)
+            if quick_ok and clinical_ok:
+                if self._hotkey_listener is not None:
+                    self._hotkey_listener.stop()
+                    self._hotkey_listener = None
+                self.hotkey_backend = "native"
+                self.native.hotkeys_registered = True
+                self._ui(self.dashboard.refresh_footer)
+                return
+            self.native.unregister_hotkey(NativeShell.HOTKEY_QUICK)
+            self.native.unregister_hotkey(NativeShell.HOTKEY_CLINICAL)
+
+        self._start_pynput_hotkeys(quick, clinical)
+
+    def _start_pynput_hotkeys(self, quick: str, clinical: str) -> None:
+        if self._hotkey_listener is not None:
+            self._hotkey_listener.stop()
+            self._hotkey_listener = None
 
         def on_quick():
             self.on_quick_hotkey()
@@ -574,22 +601,36 @@ class DictationApp:
             bindings[clinical] = on_clinical
         self._hotkey_listener = keyboard.GlobalHotKeys(bindings)
         self._hotkey_listener.start()
+        self.hotkey_backend = "pynput"
+        self._ui(self.dashboard.refresh_footer)
+        if self.native.available:
+            self._notify(
+                "Using Python hotkey listener (native hotkey registration failed).",
+                state="idle",
+                auto_hide_ms=4500,
+            )
 
     def on_clinical_hotkey(self):
+        self._ui(self._handle_clinical_hotkey)
+
+    def on_quick_hotkey(self):
+        self._ui(self._handle_quick_hotkey)
+
+    def _handle_clinical_hotkey(self):
         if self.clinical.is_recording():
             session = self.clinical.stop_session()
             if session:
-                self._notify("Processing clinical session…", state="working")
+                self._apply_notify("Processing clinical session…", state="working")
         else:
-            self._notify(
+            self._apply_notify(
                 "Open Clinical Session in Dictate to start an appointment recording.",
                 state="idle",
                 auto_hide_ms=3000,
             )
 
-    def on_quick_hotkey(self):
+    def _handle_quick_hotkey(self):
         if self.clinical.is_recording():
-            self._notify(
+            self._apply_notify(
                 "Clinical session recording — stop it first or use the clinical hotkey.",
                 state="recording",
                 auto_hide_ms=4000,
@@ -601,9 +642,13 @@ class DictationApp:
         action = None
         with self._lock:
             if self.state == "loading":
+                self._apply_notify("Still loading models…", state="loading", auto_hide_ms=2500)
+                return
+            if self.state == "error":
+                self._apply_notify("Model failed to load. Restart Dictate.", state="error", auto_hide_ms=4000)
                 return
             if self.state == "transcribing":
-                self._notify("Still transcribing…", state="working", auto_hide_ms=2000)
+                self._apply_notify("Still transcribing…", state="working", auto_hide_ms=2000)
                 return
             if self.state == "idle":
                 self.state = "recording"
@@ -693,6 +738,7 @@ class DictationApp:
             self._ui(self._sync_app_state)
 
     def quit(self):
+        self._alive = False
         if self.clinical.is_recording():
             if (
                 QMessageBox.question(
