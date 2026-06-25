@@ -73,6 +73,12 @@ QScrollBar::handle:vertical {{
 QPushButton {{
     border: none;
 }}
+QLabel {{
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}}
 QLineEdit, QComboBox {{
     border: 1px solid {BORDER};
     border-radius: 8px;
@@ -101,6 +107,24 @@ def _icon_button(name: str, tooltip: str = "", size: int = 28) -> QPushButton:
         "QPushButton:hover { background: #E4E4E7; }"
     )
     return btn
+
+
+def _plain_label(text: str = "") -> QLabel:
+    """Label with no visible box/chrome — text only."""
+    label = QLabel(text)
+    label.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+    label.setFrameShape(QFrame.Shape.NoFrame)
+    label.setStyleSheet("border: none; background: transparent; padding: 0; margin: 0;")
+    return label
+
+
+def _muted_label(text: str, *, size: int = 11, bold: bool = False) -> QLabel:
+    label = _plain_label(text)
+    weight = "font-weight: 600;" if bold else ""
+    label.setStyleSheet(
+        f"color: {MUTED}; font-size: {size}px; {weight} border: none; background: transparent; padding: 0;"
+    )
+    return label
 
 
 def format_hotkey_display(hotkey: str) -> str:
@@ -436,15 +460,17 @@ class DashboardWindow(QMainWindow):
         )
         foot = QHBoxLayout(footer)
         foot.setContentsMargins(16, 10, 16, 10)
-        self._foot_dot = QLabel("●")
-        self._foot_dot.setStyleSheet(f"color: {ACCENT}; font-size: 10px;")
-        self._foot_status = QLabel("Loading…")
+        self._foot_dot = _plain_label("●")
+        self._foot_dot.setStyleSheet(f"color: {ACCENT}; font-size: 10px; border: none; background: transparent;")
+        self._foot_status = _plain_label("Loading…")
         self._foot_status.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
         foot.addWidget(self._foot_dot)
         foot.addWidget(self._foot_status)
         foot.addStretch()
-        self._foot_meta = QLabel("")
-        self._foot_meta.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
+        self._foot_meta = _plain_label("")
+        self._foot_meta.setStyleSheet(
+            f"color: {MUTED}; font-size: 11px; border: none; background: transparent;"
+        )
         foot.addWidget(self._foot_meta)
         root.addWidget(footer)
 
@@ -556,12 +582,11 @@ class DashboardWindow(QMainWindow):
             cv.setSpacing(6)
             row = QHBoxLayout()
             row.addWidget(_icon_label(stat_icons[key], 14, ACCENT))
-            lbl = QLabel(title_text)
-            lbl.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
+            lbl = _muted_label(title_text, size=11)
             row.addWidget(lbl)
             row.addStretch()
             cv.addLayout(row)
-            val = QLabel("0")
+            val = _plain_label("0")
             val.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
             self._stat_labels[key] = val
             cv.addWidget(val)
@@ -593,9 +618,11 @@ class DashboardWindow(QMainWindow):
         local_titles.addWidget(ls)
         local_head.addLayout(local_titles)
         lv.addLayout(local_head)
-        local_desc = QLabel("All transcription happens on your machine. No audio ever leaves your device.")
+        local_desc = _muted_label(
+            "All transcription happens on your machine. No audio ever leaves your device.",
+            size=12,
+        )
         local_desc.setWordWrap(True)
-        local_desc.setStyleSheet(f"color: {MUTED}; font-size: 12px; line-height: 1.4;")
         lv.addWidget(local_desc)
         offline = QFrame()
         offline.setStyleSheet(f"background: {ACCENT_LIGHT}; border-radius: 8px;")
@@ -617,11 +644,10 @@ class DashboardWindow(QMainWindow):
         self._listen_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._listen_icon.setFixedHeight(72)
         sv.addWidget(self._listen_icon)
-        self._listen_title = QLabel("Ready")
+        self._listen_title = _plain_label("Ready")
         self._listen_title.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
         self._listen_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._listen_sub = QLabel("Press your hotkey to start dictating.")
-        self._listen_sub.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
+        self._listen_sub = _muted_label("Press your hotkey to start dictating.", size=11)
         self._listen_sub.setWordWrap(True)
         self._listen_sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
         sv.addWidget(self._listen_title)
@@ -719,27 +745,31 @@ class DashboardWindow(QMainWindow):
             "loading": WARNING,
             "error": RED,
         }.get(state, ACCENT)
-        self._foot_dot.setStyleSheet(f"color: {dot_color}; font-size: 10px;")
+        self._foot_dot.setStyleSheet(
+            f"color: {dot_color}; font-size: 10px; border: none; background: transparent;"
+        )
+        foot_text = f"color: {TEXT}; border: none; background: transparent;"
+        foot_muted = f"color: {RED_TEXT}; border: none; background: transparent;"
         if state == "recording":
             self._listen_title.setText("Listening")
             self._listen_sub.setText("Speak naturally — text appears where your cursor is.")
             self._foot_status.setText("Recording…")
-            self._foot_status.setStyleSheet(f"color: {RED_TEXT};")
+            self._foot_status.setStyleSheet(foot_muted)
         elif state == "working":
             self._listen_title.setText("Transcribing…")
             self._listen_sub.setText("Processing your speech locally.")
             self._foot_status.setText("Transcribing…")
-            self._foot_status.setStyleSheet(f"color: {TEXT};")
+            self._foot_status.setStyleSheet(foot_text)
         elif state == "loading":
             self._listen_title.setText("Loading model…")
             self._listen_sub.setText("Downloading Whisper weights on first run.")
             self._foot_status.setText("Loading…")
-            self._foot_status.setStyleSheet(f"color: {TEXT};")
+            self._foot_status.setStyleSheet(foot_text)
         else:
             self._listen_title.setText("Ready")
             self._listen_sub.setText("Press your hotkey to start dictating.")
             self._foot_status.setText("Ready")
-            self._foot_status.setStyleSheet(f"color: {TEXT};")
+            self._foot_status.setStyleSheet(foot_text)
 
     def set_status(self, message: str, auto_clear_ms: int | None = None, state: str = "idle"):
         self.set_app_state(state)
@@ -757,8 +787,8 @@ class DashboardWindow(QMainWindow):
         entries = self.app.history.get_entries()
         self._count_badge.setText(f"{len(entries)} item" if len(entries) == 1 else f"{len(entries)} items")
         if not entries:
-            empty = QLabel("No transcriptions yet")
-            empty.setStyleSheet(f"color: {MUTED}; padding: 24px;")
+            empty = _muted_label("No transcriptions yet", size=13)
+            empty.setStyleSheet(f"color: {MUTED}; padding: 24px; border: none; background: transparent;")
             self._history_area.addWidget(empty)
         else:
             for entry in entries:
@@ -779,8 +809,7 @@ class DashboardWindow(QMainWindow):
         layout.setContentsMargins(14, 12, 14, 12)
         layout.setSpacing(8)
         top = QHBoxLayout()
-        ts = QLabel(format_entry_timestamp(entry["timestamp"]))
-        ts.setStyleSheet(f"color: {MUTED}; font-size: 11px; font-weight: 600;")
+        ts = _muted_label(format_entry_timestamp(entry["timestamp"]), bold=True)
         top.addWidget(ts)
         top.addStretch()
         copy_btn = _icon_button("copy", "Copy")
@@ -790,9 +819,11 @@ class DashboardWindow(QMainWindow):
         top.addWidget(copy_btn)
         top.addWidget(del_btn)
         layout.addLayout(top)
-        text = QLabel(entry["text"])
+        text = _plain_label(entry["text"])
         text.setWordWrap(True)
-        text.setStyleSheet("font-size: 13px; line-height: 1.45;")
+        text.setStyleSheet(
+            f"color: {TEXT}; font-size: 13px; border: none; background: transparent; padding: 0;"
+        )
         layout.addWidget(text)
         return row
 
