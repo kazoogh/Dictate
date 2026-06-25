@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import threading
 
-from list_formatting import format_dictated_lists
+from list_formatting import format_dictated_lists, looks_like_dictated_list
 from punctuation_assets import ensure_punctuation_assets
 from spoken_punctuation import iter_spoken_commands, merge_punctuated_pieces, repair_whisper_punctuation_mishears
 
@@ -397,7 +397,7 @@ class TranscriptCleaner:
         if remove_fillers_enabled:
             text = remove_fillers(text)
 
-        if add_punctuation and not _has_embedded_dictation_punctuation(text):
+        if add_punctuation and not _has_embedded_dictation_punctuation(text) and not looks_like_dictated_list(text):
             model = self._get_punctuation_model()
             plain = _strip_for_punctuation_model(text)
             if model is not None and plain:

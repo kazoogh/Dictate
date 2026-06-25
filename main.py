@@ -372,6 +372,9 @@ class Transcriber:
         transcribe_kwargs: dict = {
             "language": self.config["language"],
             "vad_filter": True,
+            "beam_size": 1,
+            "best_of": 1,
+            "condition_on_previous_text": False,
         }
         if self.vocabulary and self.config.get("vocabulary_correction", True):
             prompt = self.vocabulary.whisper_prompt()
