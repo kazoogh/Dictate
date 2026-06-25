@@ -84,7 +84,7 @@ _SPOKEN_WORDS: dict[str, str] = {
   "dollar": "$",
   "percent": "%",
   "plus": "+",
-  "equals": "="",
+  "equals": "=",
   "equal": "=",
   "pipe": "|",
   "tilde": "~",
