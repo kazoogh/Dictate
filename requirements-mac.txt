@@ -1,0 +1,18 @@
+# Runtime dependencies for the macOS build of Dictate Lite.
+# Mirrors requirements-lite.txt (the app is the same Python code) with the
+# macOS system-integration packages made explicit so keystroke sending and
+# global hotkeys work reliably.
+sounddevice
+numpy
+pynput
+pyperclip
+pyautogui
+Pillow
+PySide6
+
+# macOS Cocoa/Quartz bridges. pyautogui and pynput depend on these on macOS;
+# listing them explicitly avoids a broken install where paste/hotkeys silently
+# do nothing.
+pyobjc-core; sys_platform == "darwin"
+pyobjc-framework-Cocoa; sys_platform == "darwin"
+pyobjc-framework-Quartz; sys_platform == "darwin"
