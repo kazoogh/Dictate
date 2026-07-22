@@ -1,0 +1,16 @@
+[Unit]
+Description=Dictate API transcription server
+After=network.target
+
+[Service]
+Type=simple
+User=dictate
+Group=dictate
+WorkingDirectory=/opt/dictate-api
+EnvironmentFile=/opt/dictate-api/.env
+ExecStart=/opt/dictate-api/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8765
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
