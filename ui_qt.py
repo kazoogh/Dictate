@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Callable
 
@@ -352,7 +353,12 @@ class SettingsWidget(QWidget):
         self.max_history_edit = QLineEdit()
         self.max_history_edit.setPlaceholderText("500")
         layout.addWidget(self.max_history_edit)
-        self.startup_cb = QCheckBox("Launch Dictate Lite at Windows sign-in (start in system tray)")
+        _startup_label = (
+            "Launch Dictate Lite at login (start in the menu bar)"
+            if sys.platform == "darwin"
+            else "Launch Dictate Lite at Windows sign-in (start in system tray)"
+        )
+        self.startup_cb = QCheckBox(_startup_label)
         layout.addWidget(self.startup_cb)
 
         save = QPushButton("Save changes")

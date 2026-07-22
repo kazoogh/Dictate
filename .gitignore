@@ -30,3 +30,9 @@ history.json
 clinical_data/
 .DS_Store
 Thumbs.db
+
+# Local GitHub setup scripts (contain a token — never commit these)
+Run-Dictate-GitHub-Setup.bat
+setup-dictate-github.ps1
+Run-Dictate-API-GitHub-Setup.bat
+setup-dictate-api-github.ps1

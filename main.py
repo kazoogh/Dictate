@@ -83,8 +83,15 @@ AUDIO_SAMPLE_RATE = 16000
 AUDIO_CHANNELS = 1
 SERVER_UNAVAILABLE_MESSAGE = "Dictate server unavailable. Please notify IT."
 
+# Default trigger key. Full desktop keyboards (and all Windows PCs here) have a
+# dedicated End key, so Windows keeps "<end>". Mac laptops have no End key
+# (it's Fn+Right Arrow, which cannot be captured as a global hotkey), so macOS
+# defaults to a modifier combo that works on every Mac keyboard. Users can change
+# it any time in Settings. This only affects a *fresh* install with no config.json.
+_DEFAULT_HOTKEY = "<ctrl>+<alt>+d" if sys.platform == "darwin" else "<end>"
+
 DEFAULT_CONFIG = {
-    "hotkey": "<end>",
+    "hotkey": _DEFAULT_HOTKEY,
     "dictate_server_url": "http://10.159.0.31:8765",
     "dictate_server_api_key": "",
     "server_timeout_seconds": 60,
@@ -109,14 +116,27 @@ def save_config(path: Path, config: dict) -> None:
         f.write("\n")
 
 
+_IS_MAC = sys.platform == "darwin"
+
+
 def format_mic_error(exc: Exception) -> str:
     msg = str(exc).lower()
     if "device -1" in msg or "no input" in msg or "invalid device" in msg:
+        where = (
+            "set a default input device in System Settings → Sound"
+            if _IS_MAC
+            else "set a default input device in Windows"
+        )
         return (
-            "No microphone found. Plug one in or set a default input device in Windows. "
+            f"No microphone found. Plug one in or {where}. "
             "Dictate Lite will retry automatically — no need to restart."
         )
     if "unanticipated host error" in msg or "access" in msg or "permission" in msg:
+        if _IS_MAC:
+            return (
+                "Microphone blocked. Allow Dictate Lite under System Settings → "
+                "Privacy & Security → Microphone."
+            )
         return "Microphone blocked. Check Windows privacy settings for microphone access."
     text = str(exc).strip()
     return text[:80] if text else "Microphone unavailable."
@@ -154,14 +174,45 @@ def activate_existing_window() -> bool:
         return False
 
 
-def ensure_single_instance() -> bool:
-    try:
-        import ctypes
+# Held for the whole process lifetime so the OS keeps the lock. Never closed
+# explicitly — it is released when the process exits.
+_SINGLE_INSTANCE_HANDLE = None
 
-        kernel32 = ctypes.windll.kernel32
-        kernel32.CreateMutexW(None, True, SINGLE_INSTANCE_MUTEX)
-        if kernel32.GetLastError() == 183:
+
+def ensure_single_instance() -> bool:
+    """Return True if this is the only running Dictate Lite, False otherwise.
+
+    Windows uses a named mutex; macOS/Linux use an advisory lock on a file in
+    the data dir. On any unexpected error we fail open (return True) so the app
+    still launches rather than being wrongly blocked.
+    """
+    global _SINGLE_INSTANCE_HANDLE
+    if sys.platform.startswith("win"):
+        try:
+            import ctypes
+
+            kernel32 = ctypes.windll.kernel32
+            kernel32.CreateMutexW(None, True, SINGLE_INSTANCE_MUTEX)
+            if kernel32.GetLastError() == 183:
+                return False
+            return True
+        except Exception:
+            return True
+
+    # macOS / Linux: exclusive flock on a lock file. If another instance holds
+    # it, flock raises and we report "already running".
+    try:
+        import fcntl
+
+        lock_path = get_data_dir() / "dictate_lite.lock"
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        handle = open(lock_path, "w")
+        try:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            handle.close()
             return False
+        _SINGLE_INSTANCE_HANDLE = handle  # keep the lock for the process lifetime
         return True
     except Exception:
         return True

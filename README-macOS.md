@@ -78,14 +78,21 @@ reopen the app once.
 
 ## The hotkey (important on Mac laptops)
 
-The default trigger is the **End** key (`config.json` → `"hotkey": "<end>"`).
-Full desktop keyboards have an End key; most Mac **laptops do not** (it's
-Fn+Right Arrow, which won't register as a global hotkey). Change it to something
-convenient in the app's **Settings** screen, or edit `config.json`, e.g.:
+Full desktop keyboards have a dedicated **End** key; most Mac **laptops do not**
+(it's Fn+Right Arrow, which won't register as a global hotkey). Because of that,
+the trigger key differs by platform:
 
-    "hotkey": "<f8>"
+- **Windows** defaults to the **End** key (`"hotkey": "<end>"`).
+- **macOS** defaults to **Ctrl+Option+D** (`"hotkey": "<ctrl>+<alt>+d"`), which
+  works on every Mac keyboard. This default applies to a fresh install (the
+  built `.app` with no existing settings). If you run from source and the repo's
+  `config.json` still says `<end>`, change it to a combo before first use.
 
-Modifier combos also work, e.g. `"<ctrl>+<alt>+d"`.
+Change it to whatever is convenient in the app's **Settings** screen, or edit
+`config.json`. Single function keys like `"<f8>"` are unreliable on Mac (they're
+consumed as media keys unless you enable "use F1, F2 as standard function keys"),
+so a modifier combo such as `"<ctrl>+<alt>+d"` or `"<cmd>+<shift>+d"` is the
+safest choice.
 
 ---
 
