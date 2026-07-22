@@ -482,6 +482,7 @@ class DictationApp:
 
         self.native = NativeShell(get_app_dir())
         self.hotkey_backend = "none"
+        self._mac_hotkey = None
         self.history = HistoryStore(
             get_data_dir() / "history.json",
             max_entries=config.get("max_history_entries", 500),
@@ -689,6 +690,8 @@ class DictationApp:
             self._hotkey_listener = None
         if self.native.available:
             self.native.unregister_hotkey(NativeShell.HOTKEY_QUICK)
+        if self._mac_hotkey is not None:
+            self._mac_hotkey.unregister()
         self._setup_hotkey()
 
     def _setup_hotkey(self):
@@ -710,7 +713,41 @@ class DictationApp:
                 return
             self.native.unregister_hotkey(NativeShell.HOTKEY_QUICK)
 
+        # macOS: use Carbon RegisterEventHotKey. NEVER fall back to pynput here —
+        # pynput's listener queries Text Input Source APIs off the main thread,
+        # which hard-crashes modern macOS. If Carbon fails, run without a hotkey.
+        if sys.platform == "darwin":
+            if self._setup_mac_hotkey(quick):
+                return
+            self._notify(
+                "Could not register the global hotkey on macOS.",
+                state="error",
+                auto_hide_ms=6000,
+            )
+            return
+
         self._start_pynput_hotkey(quick)
+
+    def _setup_mac_hotkey(self, quick: str) -> bool:
+        try:
+            from mac_hotkey import MacHotKey
+        except Exception:
+            return False
+        if self._mac_hotkey is None:
+            self._mac_hotkey = MacHotKey()
+        if not self._mac_hotkey.available:
+            return False
+
+        def _fire():
+            # Carbon delivers this on the main thread; hop through the emitter
+            # so dictation logic runs exactly like the Windows native path.
+            self._hotkey_emitter.pressed.emit(NativeShell.HOTKEY_QUICK)
+
+        if self._mac_hotkey.register(quick, _fire):
+            self.hotkey_backend = "mac"
+            self._ui(self.dashboard.refresh_footer)
+            return True
+        return False
 
     def _start_pynput_hotkey(self, quick: str) -> None:
         if self._hotkey_listener is not None:
@@ -873,6 +910,8 @@ class DictationApp:
             self._mic_monitor_stop.set()
         if self._hotkey_listener is not None:
             self._hotkey_listener.stop()
+        if self._mac_hotkey is not None:
+            self._mac_hotkey.unregister()
         self.native.shutdown()
         self.dashboard.destroy()
 

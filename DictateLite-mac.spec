@@ -22,6 +22,7 @@ a = Analysis(
         'icon_loader',
         'audio_devices',
         'native_bridge',
+        'mac_hotkey',
         'startup',
         'startup_ui',
         'server_client',
