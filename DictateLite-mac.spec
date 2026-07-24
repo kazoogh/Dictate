@@ -84,12 +84,18 @@ app = BUNDLE(
     info_plist={
         'CFBundleName': 'Dictate Lite',
         'CFBundleDisplayName': 'Dictate Lite',
-        'CFBundleShortVersionString': '1.0.0',
-        'CFBundleVersion': '1.0.0',
+        'CFBundleShortVersionString': '1.0.2',
+        'CFBundleVersion': '1.0.2',
         'NSHighResolutionCapable': True,
         # Required so macOS will allow microphone access for dictation.
         'NSMicrophoneUsageDescription':
             'Dictate Lite records your voice so it can be transcribed to text.',
+        # Required on macOS 15+ so the app is allowed to reach the dictation
+        # server on the local network. Without this key macOS silently blocks
+        # LAN connections ("No route to host") and never shows the Allow prompt.
+        'NSLocalNetworkUsageDescription':
+            'Dictate Lite connects to your dictation server on the local network '
+            'to transcribe your speech.',
         # Keep a normal Dock icon (the app has a main window). Set to True only
         # if you want a menu-bar-only app with no Dock presence.
         'LSUIElement': False,

@@ -630,6 +630,14 @@ class DictationApp:
             self.state = "idle"
         self._ui(lambda: self.dashboard.set_app_state("idle"))
         self._notify("Ready", state="success", auto_hide_ms=2500)
+        # macOS: contact the server once at startup so the "find devices on your
+        # local network" permission prompt appears right away (and only once),
+        # instead of silently failing on the first dictation. Best-effort.
+        if sys.platform == "darwin":
+            try:
+                self._make_server_client().health()
+            except Exception:
+                pass
 
     def _client_name(self) -> str:
         configured = str(self.config.get("client_name", "")).strip()
