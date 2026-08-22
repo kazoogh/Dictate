@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Secrets and per-install config
+.env
+lite/config.json
+
+# Build output
+build/
+dist/
+
+# Runtime
+*.wav
+*.tmp
+*.log
+history.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local GitHub setup scripts (these have contained tokens — never commit them)
+Run-Dictate-GitHub-Setup.bat
+setup-dictate-github.ps1
+Run-Dictate-API-GitHub-Setup.bat
+setup-dictate-api-github.ps1
