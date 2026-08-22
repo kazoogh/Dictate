@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+*.log
+*.wav
+*.tmp
+
+# Local GitHub setup scripts (contain a token — never commit these)
+Run-Dictate-GitHub-Setup.bat
+setup-dictate-github.ps1
+Run-Dictate-API-GitHub-Setup.bat
+setup-dictate-api-github.ps1

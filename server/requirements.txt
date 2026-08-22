@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+python-multipart
+# 1.1.0+ provides BatchedInferencePipeline (the parallel-chunk speedup) and
+# the large-v3-turbo model mapping used in the fast presets below.
+faster-whisper>=1.1.0
