@@ -1,8 +1,17 @@
 {
   "hotkey": "<end>",
-  "dictate_server_url": "http://10.159.0.31:8765",
+  "mode": "auto",
+
+  "local_model": "base.en",
+  "local_device": "cpu",
+  "local_cleanup_mode": "basic",
+  "ollama_url": "http://127.0.0.1:11434",
+  "ollama_model": "",
+
+  "dictate_server_url": "",
   "dictate_server_api_key": "",
   "server_timeout_seconds": 60,
+
   "restore_clipboard_after_paste": false,
   "max_history_entries": 500,
   "launch_at_startup": true,

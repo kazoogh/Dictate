@@ -1,4 +1,4 @@
-"""Dictate Lite — server-backed quick dictation for Windows."""
+"""Dictate — quick dictation, transcribed on this machine or on your own server."""
 
 from __future__ import annotations
 
@@ -30,8 +30,15 @@ from audio_devices import (
     open_input_stream,
     refresh_audio_devices,
 )
+from engine import (
+    ENGINE_ERRORS,
+    engine_signature,
+    make_engine,
+    make_server_client,
+    resolve_mode,
+)
 from native_bridge import HotkeyCallback, NativeShell
-from server_client import DictateServerClient, DictateServerError
+from server_client import DictateServerClient
 from startup import sync_startup_registration
 from startup_ui import (
     finish_startup_splash,
@@ -82,6 +89,7 @@ __version__ = "1.0.0"
 AUDIO_SAMPLE_RATE = 16000
 AUDIO_CHANNELS = 1
 SERVER_UNAVAILABLE_MESSAGE = "Dictate server unavailable. Please notify IT."
+LOCAL_ENGINE_MESSAGE = "Local transcription failed. Check Settings → Local model."
 
 # Default trigger key. Full desktop keyboards (and all Windows PCs here) have a
 # dedicated End key, so Windows keeps "<end>". Mac laptops have no End key
@@ -92,13 +100,31 @@ _DEFAULT_HOTKEY = "<ctrl>+<alt>+d" if sys.platform == "darwin" else "<end>"
 
 DEFAULT_CONFIG = {
     "hotkey": _DEFAULT_HOTKEY,
-    "dictate_server_url": "http://10.159.0.31:8765",
+    # How dictation gets transcribed:
+    #   "local"   faster-whisper runs here; audio never leaves this computer
+    #   "server"  audio is posted to a Dictate API server you host
+    #   "auto"    server if a server URL is set, local otherwise
+    "mode": "auto",
+    "dictate_server_url": "",
     "dictate_server_api_key": "",
     "server_timeout_seconds": 60,
     "restore_clipboard_after_paste": False,
     "max_history_entries": 500,
     "launch_at_startup": True,
     "client_name": "",
+    # --- local mode ---------------------------------------------------- #
+    "local_model": "base.en",
+    "local_device": "cpu",
+    "local_compute_type": "int8",
+    "local_language": "en",
+    "local_beam_size": 1,
+    "local_batch_size": 8,
+    "local_cpu_threads": 0,
+    # "basic" = instant regex cleanup, "ollama" = polish with a local LLM
+    "local_cleanup_mode": "basic",
+    "ollama_url": "http://127.0.0.1:11434",
+    "ollama_model": "",
+    "ollama_timeout_seconds": 30,
 }
 
 
@@ -479,6 +505,12 @@ class DictationApp:
         )
         self._ui_invoker = UiInvoker()
         self._alive = True
+        # The engine is cached: in local mode it owns the loaded Whisper model,
+        # which is far too expensive to rebuild for every dictation.
+        self._engine = None
+        self._engine_mode = resolve_mode(config)
+        self._engine_signature = engine_signature(config)
+        self._engine_lock = threading.Lock()
 
         self.native = NativeShell(get_app_dir())
         self.hotkey_backend = "none"
@@ -630,14 +662,36 @@ class DictationApp:
             self.state = "idle"
         self._ui(lambda: self.dashboard.set_app_state("idle"))
         self._notify("Ready", state="success", auto_hide_ms=2500)
-        # macOS: contact the server once at startup so the "find devices on your
-        # local network" permission prompt appears right away (and only once),
-        # instead of silently failing on the first dictation. Best-effort.
-        if sys.platform == "darwin":
+        if self._engine_mode == "local":
+            # Load the model now rather than on the first hotkey press, so the
+            # first dictation isn't stuck behind a download.
+            threading.Thread(target=self._warmup_local_model, daemon=True).start()
+        elif sys.platform == "darwin":
+            # macOS: contact the server once at startup so the "find devices on
+            # your local network" permission prompt appears right away (and only
+            # once), instead of silently failing on the first dictation.
             try:
                 self._make_server_client().health()
             except Exception:
                 pass
+
+    def _warmup_local_model(self) -> None:
+        """Load (and on a fresh install, download) the local Whisper model."""
+        try:
+            engine = self._get_engine()
+        except Exception as exc:
+            self._notify(f"Local model unavailable: {exc}", state="error", auto_hide_ms=8000)
+            return
+        if getattr(engine, "model_loaded", True):
+            return
+        model = getattr(engine, "model_name", "model")
+        self._notify(f"Loading local model ({model})…", state="working")
+        try:
+            engine.load_model()
+        except Exception as exc:
+            self._notify(f"Local model unavailable: {exc}", state="error", auto_hide_ms=8000)
+            return
+        self._notify("Local model ready", state="success", auto_hide_ms=2500)
 
     def _client_name(self) -> str:
         configured = str(self.config.get("client_name", "")).strip()
@@ -654,17 +708,44 @@ class DictationApp:
             return ""
 
     def _make_server_client(self) -> DictateServerClient:
-        server_url = str(self.config.get("dictate_server_url", "")).strip().rstrip("/")
-        return DictateServerClient(
-            server_url,
-            api_key=str(self.config.get("dictate_server_api_key", "")),
-            timeout=float(self.config.get("server_timeout_seconds", 60)),
+        return make_server_client(
+            self.config,
             client_name=self._client_name(),
             client_version=__version__,
         )
 
+    def _get_engine(self):
+        """Return the cached engine, building it on first use."""
+        with self._engine_lock:
+            if self._engine is None:
+                self._engine, self._engine_mode = make_engine(
+                    self.config,
+                    client_name=self._client_name(),
+                    client_version=__version__,
+                )
+                self._engine_signature = engine_signature(self.config)
+            return self._engine
+
+    def _reset_engine(self) -> bool:
+        """Drop the cached engine if the new settings actually changed it.
+
+        Returns True when it was dropped. Rebuilding in local mode means
+        reloading the Whisper model, so saving an unrelated setting shouldn't
+        trigger it.
+        """
+        signature = engine_signature(self.config)
+        with self._engine_lock:
+            if signature == self._engine_signature and self._engine is not None:
+                return False
+            self._engine = None
+            self._engine_signature = signature
+            self._engine_mode = resolve_mode(self.config)
+            return True
+
     def apply_settings(self, new_config: dict):
         self.config = new_config
+        if self._reset_engine() and self._engine_mode == "local":
+            threading.Thread(target=self._warmup_local_model, daemon=True).start()
         self.hotkey_display = format_hotkey_display(new_config["hotkey"])
         self.history.max_entries = int(new_config.get("max_history_entries", 500))
         self.paste_manager.restore_clipboard = new_config.get(
@@ -851,22 +932,25 @@ class DictationApp:
         finally:
             self._recording_start_in_progress = False
 
+    def _failure_message(self) -> str:
+        return (
+            LOCAL_ENGINE_MESSAGE
+            if self._engine_mode == "local"
+            else SERVER_UNAVAILABLE_MESSAGE
+        )
+
     def _stop_and_transcribe(self):
         self._sync_app_state()
-        self._notify("Transcribing on server…", state="working")
+        where = "on this computer" if self._engine_mode == "local" else "on server"
+        self._notify(f"Transcribing {where}…", state="working")
         threading.Thread(target=self._transcribe_worker, daemon=True).start()
 
     def _transcribe_quick_dictate(self, wav_path: str) -> str:
-        server_url = str(self.config.get("dictate_server_url", "")).strip().rstrip("/")
-        if not server_url:
-            raise DictateServerError("Dictate server URL is not configured")
-
-        client = self._make_server_client()
-        result = client.transcribe(wav_path)
-        text = str(result.get("text", "")).strip()
-        if not text:
-            raise DictateServerError("Server returned empty text")
-        return text
+        engine = self._get_engine()
+        result = engine.transcribe(wav_path)
+        # An empty string is a legitimate answer (silence); the caller reports
+        # "No speech detected" rather than treating it as a failure.
+        return str(result.get("text", "")).strip()
 
     def _transcribe_worker(self):
         temp_path = None
@@ -888,18 +972,20 @@ class DictationApp:
                 self._notify("Pasted.", state="success", auto_hide_ms=2000)
             else:
                 self._notify("Copied, paste manually.", state="working", auto_hide_ms=4000)
-        except (DictateServerError, OSError, TimeoutError, RuntimeError, ValueError) as exc:
+        except ENGINE_ERRORS as exc:
+            # The message is deliberately generic: the exception text can quote
+            # the transcript, and dictated text never goes to a log or the UI.
             print(
-                f"Dictate server transcription failed: {type(exc).__name__}",
+                f"Dictate transcription failed ({self._engine_mode}): {type(exc).__name__}",
                 file=sys.stderr,
             )
-            self._notify(SERVER_UNAVAILABLE_MESSAGE, state="error", auto_hide_ms=6000)
+            self._notify(self._failure_message(), state="error", auto_hide_ms=6000)
         except Exception as exc:
             print(
                 f"Dictate transcription failed: {type(exc).__name__}",
                 file=sys.stderr,
             )
-            self._notify(SERVER_UNAVAILABLE_MESSAGE, state="error", auto_hide_ms=6000)
+            self._notify(self._failure_message(), state="error", auto_hide_ms=6000)
         finally:
             self._recording_started_at = None
             if temp_path and os.path.exists(temp_path):

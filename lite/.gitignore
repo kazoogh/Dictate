@@ -27,6 +27,8 @@ ENV/
 *.tmp
 *.log
 history.json
+# Per-install runtime config; copy config.example.json to config.json
+config.json
 clinical_data/
 .DS_Store
 Thumbs.db

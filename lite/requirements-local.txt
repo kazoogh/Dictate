@@ -1,0 +1,7 @@
+# Local mode — Whisper runs on this computer.
+# Installs the desktop app's own dependencies plus the transcription engine.
+-r requirements-lite.txt
+
+# 1.1.0+ brings BatchedInferencePipeline (parallel VAD chunks, 3-5x faster on
+# CPU) and the large-v3-turbo mapping.
+faster-whisper>=1.1.0

@@ -12,6 +12,7 @@ from PySide6.QtGui import QAction, QFont, QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
+    QComboBox,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -28,6 +29,7 @@ from PySide6.QtWidgets import (
 )
 
 from icon_loader import render_logo, render_lucide
+from local_engine import MODEL_CHOICES as LOCAL_MODEL_CHOICES
 
 if TYPE_CHECKING:
     from main import DictationApp
@@ -141,6 +143,14 @@ def _icon_button(name: str, tooltip: str = "", size: int = 28) -> QPushButton:
         "QPushButton:hover { background: #E4E4E7; }"
     )
     return btn
+
+
+def _select_data(combo: QComboBox, value, *, default) -> None:
+    """Select the combo entry whose userData matches ``value``."""
+    index = combo.findData(value)
+    if index < 0:
+        index = combo.findData(default)
+    combo.setCurrentIndex(max(0, index))
 
 
 def _plain_label(text: str = "") -> QLabel:
@@ -332,21 +342,90 @@ class SettingsWidget(QWidget):
         layout.addWidget(QLabel("Hotkey"))
         self.hotkey_edit = QLineEdit()
         layout.addWidget(self.hotkey_edit)
-        layout.addWidget(QLabel("Dictate server URL"))
+
+        # --- where transcription happens ---------------------------------- #
+        layout.addWidget(self._heading("Transcription", small=True))
+        self.mode_combo = QComboBox()
+        self.mode_combo.addItem("Automatic — server if one is set, otherwise local", "auto")
+        self.mode_combo.addItem("Local — Whisper runs on this computer", "local")
+        self.mode_combo.addItem("Server — send audio to a Dictate server", "server")
+        self.mode_combo.currentIndexChanged.connect(self._sync_mode_sections)
+        layout.addWidget(self.mode_combo)
+        self.mode_hint = _muted_label("", size=11)
+        self.mode_hint.setWordWrap(True)
+        layout.addWidget(self.mode_hint)
+
+        # --- local mode ---------------------------------------------------- #
+        self.local_box = QWidget()
+        local = QVBoxLayout(self.local_box)
+        local.setContentsMargins(0, 0, 0, 0)
+        local.setSpacing(8)
+        local.addWidget(self._heading("Local model", small=True))
+        self.local_model_combo = QComboBox()
+        self.local_model_combo.setEditable(True)
+        for name in LOCAL_MODEL_CHOICES:
+            self.local_model_combo.addItem(name)
+        local.addWidget(self.local_model_combo)
+        local.addWidget(
+            _muted_label(
+                "Bigger models are more accurate and slower. base.en suits most "
+                "office PCs; the weights download once on first use.",
+                size=11,
+            )
+        )
+        local.addWidget(QLabel("Run on"))
+        self.local_device_combo = QComboBox()
+        self.local_device_combo.addItem("CPU", "cpu")
+        self.local_device_combo.addItem("NVIDIA GPU (CUDA)", "cuda")
+        local.addWidget(self.local_device_combo)
+        local.addWidget(QLabel("Cleanup"))
+        self.local_cleanup_combo = QComboBox()
+        self.local_cleanup_combo.addItem("Basic — instant, rule-based", "basic")
+        self.local_cleanup_combo.addItem("Ollama — polish with a local LLM", "ollama")
+        self.local_cleanup_combo.currentIndexChanged.connect(self._sync_mode_sections)
+        local.addWidget(self.local_cleanup_combo)
+        self.ollama_box = QWidget()
+        ollama = QVBoxLayout(self.ollama_box)
+        ollama.setContentsMargins(0, 0, 0, 0)
+        ollama.setSpacing(8)
+        ollama.addWidget(QLabel("Ollama model"))
+        self.ollama_model_edit = QLineEdit()
+        self.ollama_model_edit.setPlaceholderText("llama3.2")
+        ollama.addWidget(self.ollama_model_edit)
+        ollama.addWidget(QLabel("Ollama URL"))
+        self.ollama_url_edit = QLineEdit()
+        self.ollama_url_edit.setPlaceholderText("http://127.0.0.1:11434")
+        ollama.addWidget(self.ollama_url_edit)
+        local.addWidget(self.ollama_box)
+        test_local_btn = QPushButton("Test local engine")
+        test_local_btn.clicked.connect(self._test_local)
+        local.addWidget(test_local_btn)
+        layout.addWidget(self.local_box)
+
+        # --- server mode ---------------------------------------------------- #
+        self.server_box = QWidget()
+        server = QVBoxLayout(self.server_box)
+        server.setContentsMargins(0, 0, 0, 0)
+        server.setSpacing(8)
+        server.addWidget(self._heading("Dictate server", small=True))
+        server.addWidget(QLabel("Server URL"))
         self.dictate_server_url_edit = QLineEdit()
-        self.dictate_server_url_edit.setPlaceholderText("http://10.159.0.31:8765")
-        layout.addWidget(self.dictate_server_url_edit)
-        layout.addWidget(QLabel("Dictate server API key"))
+        self.dictate_server_url_edit.setPlaceholderText("http://192.168.1.10:8765")
+        server.addWidget(self.dictate_server_url_edit)
+        server.addWidget(QLabel("Server API key"))
         self.dictate_server_api_key_edit = QLineEdit()
         self.dictate_server_api_key_edit.setEchoMode(QLineEdit.EchoMode.Password)
-        layout.addWidget(self.dictate_server_api_key_edit)
-        layout.addWidget(QLabel("Server timeout (seconds)"))
+        server.addWidget(self.dictate_server_api_key_edit)
+        server.addWidget(QLabel("Server timeout (seconds)"))
         self.server_timeout_edit = QLineEdit()
         self.server_timeout_edit.setPlaceholderText("60")
-        layout.addWidget(self.server_timeout_edit)
+        server.addWidget(self.server_timeout_edit)
         test_server_btn = QPushButton("Test server connection")
         test_server_btn.clicked.connect(self._test_server)
-        layout.addWidget(test_server_btn)
+        server.addWidget(test_server_btn)
+        layout.addWidget(self.server_box)
+
+        layout.addWidget(self._heading("Behaviour", small=True))
         self.restore_cb = QCheckBox("Restore clipboard after paste")
         layout.addWidget(self.restore_cb)
         layout.addWidget(QLabel("Max history entries"))
@@ -376,6 +455,16 @@ class SettingsWidget(QWidget):
 
     def reload(self):
         self.hotkey_edit.setText(self.app.config["hotkey"])
+        _select_data(self.mode_combo, self.app.config.get("mode", "auto"), default="auto")
+        self.local_model_combo.setCurrentText(self.app.config.get("local_model", "base.en"))
+        _select_data(self.local_device_combo, self.app.config.get("local_device", "cpu"), default="cpu")
+        _select_data(
+            self.local_cleanup_combo,
+            self.app.config.get("local_cleanup_mode", "basic"),
+            default="basic",
+        )
+        self.ollama_model_edit.setText(self.app.config.get("ollama_model", ""))
+        self.ollama_url_edit.setText(self.app.config.get("ollama_url", ""))
         self.dictate_server_url_edit.setText(self.app.config.get("dictate_server_url", ""))
         self.dictate_server_api_key_edit.setText(
             self.app.config.get("dictate_server_api_key", "")
@@ -386,6 +475,64 @@ class SettingsWidget(QWidget):
         self.restore_cb.setChecked(self.app.config.get("restore_clipboard_after_paste", False))
         self.max_history_edit.setText(str(self.app.config.get("max_history_entries", 500)))
         self.startup_cb.setChecked(self.app.config.get("launch_at_startup", True))
+        self._sync_mode_sections()
+
+    def _sync_mode_sections(self):
+        """Show only the settings that matter for the selected mode."""
+        mode = self.mode_combo.currentData() or "auto"
+        self.local_box.setVisible(mode in ("auto", "local"))
+        self.server_box.setVisible(mode in ("auto", "server"))
+        self.ollama_box.setVisible((self.local_cleanup_combo.currentData() or "basic") == "ollama")
+        if mode == "local":
+            hint = "Audio is transcribed on this computer and never leaves it."
+        elif mode == "server":
+            hint = "Audio is sent to the Dictate server below for transcription."
+        else:
+            hint = (
+                "Uses the server when a server URL is filled in below, and falls "
+                "back to the local model when it is empty."
+            )
+        self.mode_hint.setText(hint)
+
+    def _test_local(self):
+        from engine import make_local_engine
+
+        config = self.app.config.copy()
+        config.update(self._local_settings())
+        engine = make_local_engine(config)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            engine.load_model()
+        except Exception as exc:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(
+                self,
+                "Test local engine",
+                f"Could not load the local model:\n\n{exc}",
+            )
+            return
+        finally:
+            QApplication.restoreOverrideCursor()
+        health = engine.health()
+        QMessageBox.information(
+            self,
+            "Test local engine",
+            (
+                "Local transcription is ready.\n\n"
+                f"Model: {health.get('model')}\n"
+                f"Device: {health.get('device')} ({health.get('compute_type')})\n"
+                f"Cleanup: {health.get('cleanup_mode')}"
+            ),
+        )
+
+    def _local_settings(self) -> dict:
+        return {
+            "local_model": self.local_model_combo.currentText().strip() or "base.en",
+            "local_device": self.local_device_combo.currentData() or "cpu",
+            "local_cleanup_mode": self.local_cleanup_combo.currentData() or "basic",
+            "ollama_model": self.ollama_model_edit.text().strip(),
+            "ollama_url": self.ollama_url_edit.text().strip() or "http://127.0.0.1:11434",
+        }
 
     def _test_server(self):
         from main import __version__
@@ -432,6 +579,8 @@ class SettingsWidget(QWidget):
             return
         config = self.app.config.copy()
         config["hotkey"] = hotkey
+        config["mode"] = self.mode_combo.currentData() or "auto"
+        config.update(self._local_settings())
         config["dictate_server_url"] = self.dictate_server_url_edit.text().strip().rstrip("/")
         config["dictate_server_api_key"] = self.dictate_server_api_key_edit.text().strip()
         try:
@@ -693,29 +842,25 @@ class DashboardWindow(QMainWindow):
         shield_box.setStyleSheet(f"background: {ACCENT_LIGHT}; border-radius: 10px;")
         sb = QVBoxLayout(shield_box)
         sb.setContentsMargins(0, 0, 0, 0)
-        sh = QLabel()
-        sh.setPixmap(_pil_icon(render_lucide("wifi", 20, color=ACCENT)).pixmap(20, 20))
-        sh.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        sb.addWidget(sh)
+        self._mode_icon = QLabel()
+        self._mode_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        sb.addWidget(self._mode_icon)
         server_head.addWidget(shield_box)
         server_titles = QVBoxLayout()
         server_titles.setSpacing(0)
-        st = QLabel("Server Mode")
-        st.setFont(QFont("Segoe UI", 11, QFont.Weight.DemiBold))
-        ss = QLabel("Transcription on Proxmox server")
-        ss.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
-        server_titles.addWidget(st)
-        server_titles.addWidget(ss)
+        self._mode_title = QLabel("Server Mode")
+        self._mode_title.setFont(QFont("Segoe UI", 11, QFont.Weight.DemiBold))
+        self._mode_subtitle = QLabel("")
+        self._mode_subtitle.setStyleSheet(f"color: {MUTED}; font-size: 11px;")
+        server_titles.addWidget(self._mode_title)
+        server_titles.addWidget(self._mode_subtitle)
         server_head.addLayout(server_titles)
         sv_card.addLayout(server_head)
-        server_desc = _muted_label(
-            "Audio is sent to the Dictate API server for transcription and OpenAI cleanup. "
-            "No local AI runs on this workstation.",
-            size=12,
-        )
-        server_desc.setWordWrap(True)
-        sv_card.addWidget(server_desc)
+        self._mode_desc = _muted_label("", size=12)
+        self._mode_desc.setWordWrap(True)
+        sv_card.addWidget(self._mode_desc)
         right.addWidget(self._server_card)
+        self._update_mode_card()
 
         self._status_card = _card()
         sv = QVBoxLayout(self._status_card)
@@ -763,12 +908,40 @@ class DashboardWindow(QMainWindow):
 
     def refresh_footer(self):
         self._update_footer_meta()
+        self._update_mode_card()
+
+    def _update_mode_card(self):
+        """Keep the dashboard card describing whichever engine is actually in use."""
+        local = getattr(self.app, "_engine_mode", "server") == "local"
+        if local:
+            model = self.app.config.get("local_model", "base.en")
+            icon, title = "cpu", "Local Mode"
+            subtitle = f"Whisper {model} on this computer"
+            desc = (
+                "Audio is transcribed here by Whisper and never leaves this "
+                "computer. No server, no internet required."
+            )
+        else:
+            url = self.app.config.get("dictate_server_url", "").rstrip("/") or "not configured"
+            icon, title = "wifi", "Server Mode"
+            subtitle = f"Transcription on {url}"
+            desc = (
+                "Audio is sent to your Dictate API server for transcription and "
+                "cleanup. No local AI runs on this workstation."
+            )
+        self._mode_icon.setPixmap(_pil_icon(render_lucide(icon, 20, color=ACCENT)).pixmap(20, 20))
+        self._mode_title.setText(title)
+        self._mode_subtitle.setText(subtitle)
+        self._mode_desc.setText(desc)
 
     def _update_footer_meta(self):
         from main import __version__
 
         hk = format_hotkey_display(self.app.config["hotkey"])
-        server = self.app.config.get("dictate_server_url", "").rstrip("/") or "not configured"
+        if getattr(self.app, "_engine_mode", "server") == "local":
+            server = f"local · {self.app.config.get('local_model', 'base.en')}"
+        else:
+            server = self.app.config.get("dictate_server_url", "").rstrip("/") or "not configured"
         backend = getattr(self.app, "hotkey_backend", "none")
         if backend == "native":
             shell = " · Native shell"
@@ -778,7 +951,7 @@ class DashboardWindow(QMainWindow):
             shell = " · Native (paste/audio)"
         else:
             shell = ""
-        self._foot_meta.setText(f"Server: {server} · Hotkey: {hk} · v{__version__}{shell}")
+        self._foot_meta.setText(f"Transcription: {server} · Hotkey: {hk} · v{__version__}{shell}")
 
     def set_app_state(self, state: str):
         self._state = state
@@ -869,6 +1042,7 @@ class DashboardWindow(QMainWindow):
         else:
             for entry in entries:
                 self._history_area.addWidget(self._history_row(entry))
+        self.refresh_footer()
         stats = self.app.history.get_stats()
         self._stat_labels["time"].setText(format_total_time(stats["total_seconds"]))
         self._stat_labels["words"].setText(f"{stats['total_words']:,}")
