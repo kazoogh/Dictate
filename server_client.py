@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import logging
 import mimetypes
+import subprocess
+import sys
 import uuid
 from pathlib import Path
 from typing import Any
@@ -12,6 +14,13 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 logger = logging.getLogger("dictate.server")
+
+# On macOS the OS "Local Network" privacy gate blocks Python's own network stack
+# from reaching LAN servers (connections fail with errno 65, "No route to host",
+# and the app can't be granted access unless it's Apple-signed). The system curl
+# binary is exempt from that gate, so on macOS we route requests through it.
+_USE_CURL = sys.platform == "darwin"
+_CURL = "/usr/bin/curl"
 
 
 class DictateServerError(Exception):
@@ -46,9 +55,63 @@ class DictateServerClient:
             headers.update(extra)
         return headers
 
+    # ------------------------------------------------------------------ #
+    # curl transport (macOS only)
+    # ------------------------------------------------------------------ #
+    def _curl_request(
+        self,
+        method: str,
+        url: str,
+        *,
+        headers: dict[str, str],
+        file_path: str | None = None,
+    ) -> dict[str, Any]:
+        cmd = [
+            _CURL, "-sS",
+            "-m", str(int(self.timeout)),
+            "-X", method,
+            "-w", "\n%{http_code}",
+        ]
+        for key, value in headers.items():
+            cmd += ["-H", f"{key}: {value}"]
+        if file_path is not None:
+            filename = Path(file_path).name
+            ctype = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+            cmd += ["-F", f"file=@{file_path};type={ctype};filename={filename}"]
+        cmd.append(url)
+
+        try:
+            proc = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=self.timeout + 15
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise DictateServerError("Request timed out") from exc
+        except OSError as exc:
+            raise DictateServerError(f"Could not run curl: {exc}") from exc
+
+        if proc.returncode != 0:
+            detail = proc.stderr.strip() or f"curl exit {proc.returncode}"
+            raise DictateServerError(f"Request failed: {detail[:200]}")
+
+        body, _, status = proc.stdout.rpartition("\n")
+        status = status.strip()
+        if status != "200":
+            raise DictateServerError(f"Server returned status {status}: {body[:200]}")
+        try:
+            payload = json.loads(body)
+        except json.JSONDecodeError as exc:
+            raise DictateServerError("Server returned invalid JSON") from exc
+        if not isinstance(payload, dict):
+            raise DictateServerError("Server returned unexpected response")
+        return payload
+
+    # ------------------------------------------------------------------ #
     def health(self) -> dict[str, Any]:
         url = f"{self.base_url}/health"
         logger.info("Dictate server health check: %s", url)
+        if _USE_CURL:
+            return self._curl_request("GET", url, headers=self._request_headers())
+
         request = Request(url, headers=self._request_headers(), method="GET")
         try:
             with urlopen(request, timeout=self.timeout) as response:
@@ -67,46 +130,44 @@ class DictateServerClient:
             raise DictateServerError(f"Audio file not found: {path}")
 
         url = f"{self.base_url}/transcribe"
-        body, content_type = _encode_multipart_file(path, field_name="file")
-        headers = self._request_headers({"Content-Type": content_type})
         logger.info("Dictate server transcribe: %s (%s bytes)", url, path.stat().st_size)
 
-        request = Request(url, data=body, headers=headers, method="POST")
-        try:
-            with urlopen(request, timeout=self.timeout) as response:
-                status = getattr(response, "status", 200)
-                raw = response.read().decode("utf-8")
-        except HTTPError as exc:
-            err_body = exc.read().decode("utf-8", errors="replace")
-            raise DictateServerError(
-                f"Transcribe failed ({exc.code}): {err_body[:200]}"
-            ) from exc
-        except URLError as exc:
-            raise DictateServerError(f"Transcribe failed: {exc.reason}") from exc
-
-        if status != 200:
-            raise DictateServerError(f"Transcribe failed with status {status}")
-
-        try:
-            payload = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            raise DictateServerError("Transcribe returned invalid JSON") from exc
+        if _USE_CURL:
+            payload = self._curl_request(
+                "POST", url, headers=self._request_headers(), file_path=str(path)
+            )
+        else:
+            body, content_type = _encode_multipart_file(path, field_name="file")
+            headers = self._request_headers({"Content-Type": content_type})
+            request = Request(url, data=body, headers=headers, method="POST")
+            try:
+                with urlopen(request, timeout=self.timeout) as response:
+                    status = getattr(response, "status", 200)
+                    raw = response.read().decode("utf-8")
+            except HTTPError as exc:
+                err_body = exc.read().decode("utf-8", errors="replace")
+                raise DictateServerError(
+                    f"Transcribe failed ({exc.code}): {err_body[:200]}"
+                ) from exc
+            except URLError as exc:
+                raise DictateServerError(f"Transcribe failed: {exc.reason}") from exc
+            if status != 200:
+                raise DictateServerError(f"Transcribe failed with status {status}")
+            try:
+                payload = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise DictateServerError("Transcribe returned invalid JSON") from exc
 
         if not isinstance(payload, dict):
             raise DictateServerError("Transcribe returned unexpected response")
-
         text = str(payload.get("text", "")).strip()
         if not text:
             raise DictateServerError("Transcribe returned empty text")
 
         elapsed = payload.get("processing_time_seconds")
-        model = payload.get("model")
-        device = payload.get("device")
         logger.info(
-            "Dictate server transcribe OK (%.2fs, model=%s, device=%s, chars=%d)",
+            "Dictate server transcribe OK (%.2fs, chars=%d)",
             float(elapsed) if elapsed is not None else -1.0,
-            model,
-            device,
             len(text),
         )
         return payload
