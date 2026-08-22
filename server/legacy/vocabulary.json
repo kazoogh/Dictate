@@ -1,0 +1,25 @@
+{
+  "_comment": "Terms the cleanup prompt should spell correctly. Replace these with your own.",
+  "terms": [
+    {
+      "term": "Whisper",
+      "category": "software",
+      "priority": "high"
+    },
+    {
+      "term": "Ollama",
+      "category": "software",
+      "priority": "high"
+    },
+    {
+      "term": "Proxmox",
+      "category": "infrastructure",
+      "priority": "medium"
+    },
+    {
+      "term": "Acme Clinic",
+      "category": "organization",
+      "priority": "medium"
+    }
+  ]
+}

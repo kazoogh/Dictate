@@ -8,6 +8,7 @@ import time
 import threading
 import urllib.error
 import urllib.request
+from pathlib import Path
 from typing import Literal, Optional
 
 from fastapi import FastAPI, UploadFile, File, Header, HTTPException
@@ -29,7 +30,9 @@ if CLEANUP_MODE not in {"basic", "openai"}:
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 OPENAI_CLEANUP_MODEL = os.environ.get("OPENAI_CLEANUP_MODEL", "gpt-4o-mini")
 OPENAI_CLEANUP_TIMEOUT = float(os.environ.get("OPENAI_CLEANUP_TIMEOUT", "20"))
-VOCAB_PATH = os.environ.get("DICTATE_VOCAB_PATH", "/opt/dictate-api/vocabulary.json")
+VOCAB_PATH = os.environ.get(
+    "DICTATE_VOCAB_PATH", str(Path(__file__).with_name("vocabulary.json"))
+)
 
 CleanupMode = Literal["basic", "openai"]
 
@@ -161,7 +164,7 @@ def build_cleanup_system_prompt(terms: list[str]) -> str:
         "Do not overcorrect generic words.\n"
         "Preserve exact capitalization and punctuation of vocabulary terms.\n"
         "Examples: 'chat gpt' or 'chat g p t' may become 'ChatGPT'; 'make dot com' or 'make com' "
-        "may become 'Make.com'; 'dentrix ascend' may become 'Dentrix Ascend'.\n"
+        "may become 'Make.com'; 'oh llama' may become 'Ollama'.\n"
         "Vocabulary terms:\n"
         f"{term_lines}"
     )

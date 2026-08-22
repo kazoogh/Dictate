@@ -38,7 +38,7 @@ That's the code on GitHub. Now the server.
    (replace `YOURLOGIN` with the username you use for the server — often `root`):
 
    ```
-   ssh YOURLOGIN@10.159.0.31
+   ssh YOURLOGIN@192.168.1.10
    ```
 
 5. The first time it may say *"Are you sure you want to continue connecting"* —

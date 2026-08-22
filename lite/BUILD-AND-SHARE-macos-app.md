@@ -121,6 +121,6 @@ A fresh Release with new zips appears a few minutes later.
   what makes the right-click-Open route work. Removing the first-launch prompt
   entirely would need a paid Apple Developer ID ($99/yr) + notarization — nice to
   have, not required.
-- The emailed app already points at your server (`http://10.159.0.31:8765`) and
+- The emailed app already points at your server (`http://192.168.1.10:8765`) and
   defaults to the Ctrl+Option+D hotkey, so there's nothing for him to configure
   as long as he's on the practice network.

@@ -16,7 +16,7 @@ later if you want a double-clickable icon.
 
 The app sends audio to your Dictate API server. The default in `config.json` is:
 
-    http://10.159.0.31:8765
+    http://192.168.1.10:8765
 
 That is a **private IP**. The Mac will only reach it if it's on the same
 network as the server or connected through your practice VPN. From a normal home
